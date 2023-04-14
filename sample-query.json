@@ -1,0 +1,16 @@
+{
+    "stream": true,
+    "userInfo": {
+        "status": "Alex owes Bob $20 yesterday dinner, owes Alice $10 for lunch"
+    },
+    "messages": [
+        {
+            "role": "Assistant",
+            "content": "Onii-chan, How can I help you?"
+        },
+        {
+            "role": "Alex",
+            "content": "Should I order a Starbucks coffee? I am feeling a bit tired."
+        }
+    ]
+}
