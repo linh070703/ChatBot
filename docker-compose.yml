@@ -2,16 +2,20 @@ version: "3.8"
 
 services:
     model_api:
+        networks:
+            - ai_net
         image: hyperonym/basaran:0.14.1
-        restart: always
+        restart: on-failure
         environment:
             MODEL: "/models/bigscience/bloomz-3b"
             SERVER_MODEL_NAME: "bigscience/bloomz-3b"
             MODEL_HALF_PRECISION: "true"
             # MODEL_LOAD_IN_8BIT: "true"  # single-GPU
             CUDA_MEMORY_FRACTION: "1.0"
-        ports:
-            - "3000:80"
+        # ports:
+        #     - "3000:80"
+        expose:
+            - "80"
         volumes:
             - ./models/:/models/
         deploy:
@@ -19,3 +23,13 @@ services:
                 reservations:
                     devices:
                         - capabilities: [gpu]
+
+    flask_api:
+        build: .
+        restart: on-failure
+        ports:
+            - "5000:5000"
+
+networks:
+    ai_net:
+        driver: bridge

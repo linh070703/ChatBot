@@ -26,8 +26,7 @@ For example, when user say "Should I order a $100 pizza from Minh?", then you as
 """
 }
 
-# MODEL_API_URL = "model_api:3000"
-MODEL_API_URL = "localhost:3000"
+MODEL_API_URL = "model_api:80"
 
 app = Flask(__name__)
 

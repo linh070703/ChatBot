@@ -1,5 +1,5 @@
-# uwsgi
 Flask
 Flask-cors
 unidecode
 emoji
+waitress
