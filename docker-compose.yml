@@ -7,12 +7,12 @@ services:
         environment:
             MODEL: "bigscience/bloomz-560m"
             SERVER_MODEL_NAME: "bloomz-560m"
-            # MODEL_HALF_PRECISION: "true"
-            # CUDA_MEMORY_FRACTION: "1.0"
+            MODEL_HALF_PRECISION: "true"
+            CUDA_MEMORY_FRACTION: "1.0"
         ports:
             - "80:80"
-        # deploy:
-        #     resources:
-        #         reservations:
-        #             devices:
-        #                 - capabilities: [gpu]
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                        - capabilities: [gpu]
