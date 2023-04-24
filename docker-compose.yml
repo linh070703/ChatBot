@@ -1,18 +1,19 @@
 version: "3.8"
 
 services:
-    basaran:
+    model_api:
         image: hyperonym/basaran:0.14.1
         restart: always
         environment:
-            MODEL: "/models/bigscience/bloomz-560m/"
-            SERVER_MODEL_NAME: "bigscience/bloomz-560m"
+            MODEL: "/models/bigscience/bloomz-3b"
+            SERVER_MODEL_NAME: "bigscience/bloomz-3b"
             MODEL_HALF_PRECISION: "true"
+            # MODEL_LOAD_IN_8BIT: "true"  # single-GPU
             CUDA_MEMORY_FRACTION: "1.0"
         ports:
             - "3000:80"
         volumes:
-            - ./models_mount:/models/
+            - ./models/:/models/
         deploy:
             resources:
                 reservations:
