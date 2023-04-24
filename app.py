@@ -26,7 +26,8 @@ For example, when user say "Should I order a $100 pizza from Minh?", then you as
 """
 }
 
-MODEL_API_URL = "model_api:3000"
+# MODEL_API_URL = "model_api:3000"
+MODEL_API_URL = "localhost:3000"
 
 app = Flask(__name__)
 
@@ -39,7 +40,7 @@ def chat():
     n_predict = request.json.get('max_num_words', 64)
     stream = request.json.get('stream', False)
     stream_json = request.json.get('stream_json', False)
-    userInfo = request.json.get('userInfo', {})
+    userInfo = request.json.get('userInfo', {"status": None})
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
     if not messages:

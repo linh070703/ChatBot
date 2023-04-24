@@ -46,7 +46,7 @@ class Conversation:
         if isinstance(conversation, dict):
             self.command = conversation['command']
             self.userInfo = conversation['userInfo']
-            self.user_status = self.userInfo['status']
+            self.user_status = self.userInfo.get('status', "")
             self.messages = []
             for message in conversation['messages']:
                 role = message['role']
