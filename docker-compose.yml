@@ -10,8 +10,8 @@ services:
             MODEL: "/models/bigscience/bloomz-3b"
             SERVER_MODEL_NAME: "bigscience/bloomz-3b"
             MODEL_HALF_PRECISION: "true"
-            # MODEL_LOAD_IN_8BIT: "true"  # single-GPU
             CUDA_MEMORY_FRACTION: "1.0"
+            # MODEL_LOAD_IN_8BIT: "true"  # single-GPU
         # ports:
         #     - "3000:80"
         expose:
@@ -25,6 +25,8 @@ services:
                         - capabilities: [gpu]
 
     flask_api:
+        networks:
+            - ai_net
         build: .
         restart: on-failure
         ports:

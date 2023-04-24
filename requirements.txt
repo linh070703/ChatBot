@@ -3,3 +3,4 @@ Flask-cors
 unidecode
 emoji
 waitress
+requests
