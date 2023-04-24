@@ -5,12 +5,14 @@ services:
         image: hyperonym/basaran:0.14.1
         restart: always
         environment:
-            MODEL: "bigscience/bloomz-560m"
-            SERVER_MODEL_NAME: "bloomz-560m"
+            MODEL: "/models/bigscience/bloomz-560m/"
+            SERVER_MODEL_NAME: "bigscience/bloomz-560m"
             MODEL_HALF_PRECISION: "true"
             CUDA_MEMORY_FRACTION: "1.0"
         ports:
-            - "80:80"
+            - "3000:80"
+        volumes:
+            - ./models_mount:/models/
         deploy:
             resources:
                 reservations:
