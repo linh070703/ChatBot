@@ -8,32 +8,16 @@ from flask import (
     send_from_directory
 )
 from typing import List, Dict, Union, Any
-from utils.entities import Conversation
-from utils.prompt_factory import MODE
 from queue import Queue
 import threading
 import time
 import json
 import sys
 import requests
+from utils.entities import Conversation
+from utils.prompt_factory import MODE
 from utils.mock import mock_app
-
-model = None
-
-MODEL_API_URL = "model_api:80"
-
-def generate(inputs: str, temperature: float) -> str:
-    return requests.post(
-        f"http://{MODEL_API_URL}/v1/completions",
-        headers={'Content-Type': 'application/json'},
-        data=json.dumps({
-            'prompt': inputs,
-            "min_tokens": 30,
-            "max_tokens": 2048,
-            "temperature": temperature,
-            # "n": int, 
-        })
-    ).json()['choices'][0]['text']
+from utils.model_api import generate
 
 app = Flask(__name__)
 
