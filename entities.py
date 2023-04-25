@@ -1,4 +1,4 @@
-from typing import List, Dict, Tuple, Union, Optional
+from typing import List, Dict, Tuple, Union, Optional, Literal
 from unidecode import unidecode
 import re
 import emoji
@@ -45,7 +45,7 @@ class Conversation:
         """
         if isinstance(conversation, dict):
             self.command = conversation['command']
-            self.userInfo = conversation['userInfo']
+            self.userInfo = conversation.get('userInfo', {"status": ""})
             self.user_status = self.userInfo.get('status', "")
             self.messages = []
             for message in conversation['messages']:
@@ -111,6 +111,105 @@ class Conversation:
             out,
         )
         return out
+   
+    def extract_action(self, model_output: str) -> Dict:
+        """
+        Extract the action from the model output.
+        
+        Action:NO_ACTION
+        Action:TRANSFER_MONEY[amount=1000, from='user1', to='user2']
+        Action:CHECK_BALANCE[from='user1']
+
+        Args:
+            model_output (str): The model output.
+        
+        Returns:
+            Dict: The action.
+        
+        Example:
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ... ]}).extract_action("Action:TRANSFER_MONEY[amount=1000, from=user1, to=user2]")
+            {'command': 'TRANSFER_MONEY', 'params': {'amount': '1000', 'from': 'user1', 'to': 'user2'}}
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ... ]}).extract_action("Action:CHECK_BALANCE[from=user1]")
+            {'command': 'CHECK_BALANCE', 'params': {'from': 'user1'}}
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ... ]}).extract_action("Action:NO_ACTION")
+            {'command': 'NO_ACTION', 'params': {}}
+        """
+        last_raw = model_output.split("Action:")[-1]
+        if last_raw.startswith("NO_ACTION"):
+            return {
+                "command": "NO_ACTION",
+                "params": {}
+            }
+        elif last_raw.startswith("TRANSFER_MONEY"):
+            return {
+                "command": "TRANSFER_MONEY",
+                "params": {
+                    "amount": last_raw.split("amount=")[-1].split(",")[0],
+                    "from": last_raw.split("from=")[-1].split(",")[0],
+                    "to": last_raw.split("to=")[-1].split("]")[0]
+                }
+            }
+        elif last_raw.startswith("CHECK_BALANCE"):
+            return {
+                "command": "CHECK_BALANCE",
+                "params": {
+                    "from": last_raw.split("from=")[-1].split("]")[0]
+                }
+            }
+
+    
+    def extract_intent(self, model_output: str) -> Literal['NOTHING', 'ASK_ASSISTANT', 'TRANSFER_MONEY']:
+        """
+        Extract the intent from the model output.
+
+        Args:
+            model_output (str): The model output.
+            
+        Returns:
+            Literal['NOTHING', 'ASK_ASSISTANT', 'TRANSFER_MONEY']: The intent.
+            
+        Example:
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ...     ]}).extract_intent("User Intent: NOTHING")
+            'NOTHING'
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ...     ]}).extract_intent("User Intent: ASK_ASSISTANT")
+            'ASK_ASSISTANT'
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ...     ]}).extract_intent("User Intent: TRANSFER_MONEY")
+            'TRANSFER_MONEY'
+        """
+        raw_intent = model_output.split("User intent: ")[-1]
+        if raw_intent.__contains__("NOTHING"):
+            return "NOTHING"
+        elif raw_intent.__contains__("ASK_ASSISTANT"):
+            return "ASK_ASSISTANT"
+        elif raw_intent.__contains__("TRANSFER_MONEY"):
+            return "TRANSFER_MONEY"
+        else:
+            return "CANNOT_EXTRACT_INTENT"
+
 
     def get_all_users(self) -> List[str]:
         """
@@ -125,3 +224,9 @@ class Conversation:
         output = list(set([m.role.capitalize() + ':' for m in self.messages if m.role.lower() != 'assistant'])) + ['System:']
         print(f'List of users: {output}')
         return output
+    
+
+if __name__ == "__main__":
+    import doctest
+    doctest.run_docstring_examples(Conversation.extract_action, globals(), verbose=True)
+    doctest.run_docstring_examples(Conversation.extract_intent, globals(), verbose=True)
