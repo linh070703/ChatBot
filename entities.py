@@ -18,22 +18,12 @@ class Conversation:
         """
         Extract the conversation into objects from the raw conversation string.
         Example:
-            >>> Conversation('Continue the following conversation as the assistant.
-            User: Who won the world series in 2020?
-            Assistant: The Los Angeles Dodgers won the World Series in 2020.
-            User: Where was it played?')
-            Conversation(
-                command='Continue the following conversation:',
-                messages=[
-                    Message(role='assistant', content='The Los Angeles Dodgers won the World Series in 2020.'),
-                    Message(role='user', content='Where was it played?')
-                ]
-            )
             >>> Conversation({"command": "Continue the following conversation as the assistant.",
-            "messages": [
-            {"role": "Alex", "content": "Who won the world series in 2020?"},
-            {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
-            {"role": "Bob", "content": "Where was it played?"}]})
+            ... "messages": [
+            ...     {"role": "Alex", "content": "Who won the world series in 2020?"},
+            ...     {"role": "assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+            ...     {"role": "Bob", "content": "Where was it played?"}
+            ... ]})
             Conversation(
                 command='Continue the following conversation as the assistant.',
                 messages=[
@@ -43,29 +33,17 @@ class Conversation:
                 ]
             )
         """
-        if isinstance(conversation, dict):
-            self.command = conversation['command']
-            self.userInfo = conversation.get('userInfo', {"status": ""})
-            self.user_status = self.userInfo.get('status', "")
-            self.messages = []
-            for message in conversation['messages']:
-                role = message['role']
-                content = message['content']
-                self.messages.append(Message(role=role, content=content))
-        else:
-            conversation = conversation.strip()
-            # extract command
-            self.command = conversation.split('\n')[0]
-            # extract messages
-            # User first, then alternate between assistant and user. The assistant answer can span multiple lines. User's message can be multiple lines. User's name can be anything and then a colon.
-            # match by regex
-            # self.messages = []
-            # self.user_status = ""
-            # for message in re.findall(r"([A-Za-z0-9 ]+):(.*)", conversation):
-            #     role = message[0].strip().lower()
-            #     content = message[1].strip()
-            #     self.messages.append(Message(role=role, content=content))
+        if not isinstance(conversation, dict):
             raise NotImplementedError("Please use the JSON format for the conversation.")
+
+        self.command = conversation['command']
+        self.userInfo = conversation.get('userInfo', {"status": ""})
+        self.user_status = self.userInfo.get('status', "")
+        self.messages = []
+        for message in conversation['messages']:
+            role = message['role']
+            content = message['content']
+            self.messages.append(Message(role=role, content=content))
         self.raw_conversation = self.prepare_model_input()
     
     def __repr__(self):
@@ -78,18 +56,20 @@ class Conversation:
         """
         Prepare the input for the model.
         Example:
-            >>> Conversation('Continue the following conversation as the assistant.
-            User: Who won the world series in 2020?
+            >>> Conversation({"command": "Continue the following conversation as the assistant.",
+            ... "messages": [
+            ...     {"role": "Alex", "content": "Who won the world series in 2020?"},
+            ...     {"role": "Assistant", "content": "The Los Angeles Dodgers won the World Series in 2020."},
+            ...     {"role": "Bob", "content": "Where was it played?"}
+            ... ]}).prepare_model_input()
+            'Continue the following conversation as the assistant.
+            Alex: Who won the world series in 2020?
             Assistant: The Los Angeles Dodgers won the World Series in 2020.
-            User: Where was it played?').prepare_model_input()
-            'Continue the following conversation:
-            User: Who won the world series in 2020?
-            Assistant: The Los Angeles Dodgers won the World Series in 2020.
-            User: Where was it played?
+            Bob: Where was it played?
             Assistant: '
         """
         output = self.command + '\n'
-        output += f"System: {self.user_status}\n"
+        # output += f"System: {self.user_status}\n"
         for message in self.messages:
             output += message.role.capitalize() + ': ' + message.content + '\n'
         output += 'Assistant: '
@@ -216,18 +196,26 @@ class Conversation:
         """
         Get all users in the conversation, excluding the assistant.
         Example:
-            >>> Conversation('Continue the following conversation as the assistant.
-            User: Who won the world series in 2020?
-            Assistant: The Los Angeles Dodgers won the World Series in 2020.
-            User: Where was it played?').get_all_users()
-            ['User']
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...        {'role': 'Alex', 'content': 'Who won the world series in 2020?'},
+            ...        {'role': 'assistant', 'content': 'The Dodgers won the world series in 2020.'},
+            ...        {'role': 'Bob', 'content': 'Who won the world series in 2019?'},
+            ...        {'role': 'assistant', 'content': 'The Nationals won the world series in 2019.'},
+            ...        {'role': 'Bob', 'content': 'Who won the world series in 2018?'},
+            ...        {'role': 'assistant', 'content': 'The Red Sox won the world series in 2018.'},
+            ...     ]}).get_all_users()
+            ['Bob:', 'Alex:', 'System:']
+            
         """
         output = list(set([m.role.capitalize() + ':' for m in self.messages if m.role.lower() != 'assistant'])) + ['System:']
-        print(f'List of users: {output}')
+        # print(f'List of users: {output}')
         return output
     
 
 if __name__ == "__main__":
     import doctest
-    doctest.run_docstring_examples(Conversation.extract_action, globals(), verbose=True)
-    doctest.run_docstring_examples(Conversation.extract_intent, globals(), verbose=True)
+    doctest.testmod()
+    # doctest.run_docstring_examples(Conversation.extract_action, globals(), verbose=True)
+    # doctest.run_docstring_examples(Conversation.extract_intent, globals(), verbose=True)
