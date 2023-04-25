@@ -95,6 +95,7 @@ class Conversation:
         output += 'Assistant: '
         output = emoji.demojize(output)
         output = "".join([unidecode(c) if c not in _VIETNAMESE_CHARS else c for c in output])
+        self.raw_conversation = output
         return output
     
     def postprocess_model_output(self, model_output: str) -> str:
@@ -117,8 +118,8 @@ class Conversation:
         Extract the action from the model output.
         
         Action:NO_ACTION
-        Action:TRANSFER_MONEY[amount=1000, from='user1', to='user2']
-        Action:CHECK_BALANCE[from='user1']
+        Action:TRANSFER_MONEY[amount=1000, from=user1, to=user2]
+        Action:CHECK_BALANCE[from=user1]
 
         Args:
             model_output (str): The model output.
@@ -170,7 +171,7 @@ class Conversation:
             }
 
     
-    def extract_intent(self, model_output: str) -> Literal['NOTHING', 'ASK_ASSISTANT', 'TRANSFER_MONEY']:
+    def extract_intent(self, model_output: str) -> Literal['NO_BOT_ACTION', 'ASK_ASSISTANT', 'TRANSFER_MONEY']:
         """
         Extract the intent from the model output.
 
@@ -178,31 +179,31 @@ class Conversation:
             model_output (str): The model output.
             
         Returns:
-            Literal['NOTHING', 'ASK_ASSISTANT', 'TRANSFER_MONEY']: The intent.
+            Literal['NO_BOT_ACTION', 'ASK_ASSISTANT', 'TRANSFER_MONEY']: The intent.
             
         Example:
             >>> Conversation({
             ...     'command': 'Continue the following conversation as the assistan.',
             ...     'messages': [
             ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
-            ...     ]}).extract_intent("User Intent: NOTHING")
-            'NOTHING'
+            ...     ]}).extract_intent("Intent:NO_BOT_ACTION")
+            'NO_BOT_ACTION'
             >>> Conversation({
             ...     'command': 'Continue the following conversation as the assistan.',
             ...     'messages': [
             ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
-            ...     ]}).extract_intent("User Intent: ASK_ASSISTANT")
+            ...     ]}).extract_intent("Intent:ASK_ASSISTANT")
             'ASK_ASSISTANT'
             >>> Conversation({
             ...     'command': 'Continue the following conversation as the assistan.',
             ...     'messages': [
             ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
-            ...     ]}).extract_intent("User Intent: TRANSFER_MONEY")
+            ...     ]}).extract_intent("Intent:TRANSFER_MONEY")
             'TRANSFER_MONEY'
         """
-        raw_intent = model_output.split("User intent: ")[-1]
-        if raw_intent.__contains__("NOTHING"):
-            return "NOTHING"
+        raw_intent = model_output.split("Intent:")[-1]
+        if raw_intent.__contains__("NO_BOT_ACTION"):
+            return "NO_BOT_ACTION"
         elif raw_intent.__contains__("ASK_ASSISTANT"):
             return "ASK_ASSISTANT"
         elif raw_intent.__contains__("TRANSFER_MONEY"):
