@@ -8,15 +8,15 @@ from flask import (
     send_from_directory
 )
 from typing import List, Dict, Union, Any
-from entities import Conversation
-from prompt_factory import MODE
+from utils.entities import Conversation
+from utils.prompt_factory import MODE
 from queue import Queue
 import threading
 import time
 import json
 import sys
 import requests
-from mock import mock_app
+from utils.mock import mock_app
 
 model = None
 

@@ -3,9 +3,9 @@ FROM python:3
 RUN mkdir -p /app
 WORKDIR /app
 
+COPY utils /app/utils
 COPY app.py /app
 COPY requirements.txt /app
-COPY entities.py /app
 
 RUN pip install -r requirements.txt
 
