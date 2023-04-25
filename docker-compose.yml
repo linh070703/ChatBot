@@ -13,9 +13,9 @@ services:
             CUDA_MEMORY_FRACTION: "1.0"
             # MODEL_LOAD_IN_8BIT: "true"  # single-GPU
         ports:
-            - "6000:80"
-        expose:
-            - "80"
+            - 7000:80
+        # expose:
+        #     - "80"
         volumes:
             - ./models/:/models/
         deploy:
