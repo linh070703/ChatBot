@@ -48,7 +48,7 @@ def chat():
     # get intent
     conversation = Conversation({'command': MODE['detect-intent'], 'messages': messages, 'userInfo': userInfo})
     input = conversation.prepare_model_input()
-    input_for_model = input + 'Intent:'
+    input_for_model = input + 'Intent: '
     print(f"Input: {input_for_model}")
 
     assistant_answer = generate(input_for_model, temperature)
@@ -63,10 +63,24 @@ def chat():
         return jsonify({
             'intent': intent,
         })
+    elif intent == 'ASK_ASSISTANT':
+        conversation.command = MODE['response']
+        next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAssistant: "
+        print(f"Next_input for response: {next_input}")
+        assistant_answer = generate(next_input, temperature)
+        print(f"Assistant_answer: {assistant_answer}")
+        bot_response = conversation.extract_response(assistant_answer)
+        print(f"Bot_response: {bot_response}")
+        return jsonify({
+            'message': {
+                'role': 'assistant', 'content': bot_response
+            },
+            'intent': intent,
+        })
 
     conversation.command = MODE['action']
 
-    next_input = conversation.prepare_model_input() + "Intent:" + intent + "\nAction:"
+    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: "
 
     print(f"Next_input for action: {next_input}")
 
@@ -79,7 +93,9 @@ def chat():
 
     print(f"Action: {action}")
 
-    next_input = conversation.prepare_model_input() + "Intent:" + intent + "\nAction:" + r_action + "\nAssistant: "
+    conversation.command = MODE['response']
+
+    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction:" + r_action + "\nAssistant: "
 
     print(f"Next_input for response: {next_input}")
     
