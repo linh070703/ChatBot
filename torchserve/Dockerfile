@@ -1,13 +1,13 @@
 FROM pytorch/torchserve:0.7.1-gpu
 
-ARG APP_NAME
+ARG APP_NAME=chatbot
 
 # install dependencies
 RUN pip3 install transformers
 
 # copy model artifacts, custom handler and other dependencies
 COPY ./torchserve_handler.py /home/model-server/
-COPY ../models/$APP_NAME/ /home/model-server/
+COPY ./models/$APP_NAME/ /home/model-server/
 
 # create torchserve configuration file
 USER root

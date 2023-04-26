@@ -1,9 +1,7 @@
 from google.cloud import aiplatform
 
-APP_NAME="chatbot"
-
 PROJECT_ID="mythic-evening-379401"
-APP_NAME="chatbot"
+APP_NAME="bigscience/bloomz-3b"
 
 CUSTOM_PREDICTOR_IMAGE_URI=f"gcr.io/${PROJECT_ID}/junction_predict_${APP_NAME}"
 

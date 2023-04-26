@@ -3,11 +3,11 @@ set -x
 set -e
 
 PROJECT_ID="mythic-evening-379401"
-APP_NAME="chatbot"
+APP_NAME="bigscience/bloomz-3b"
 
-CUSTOM_PREDICTOR_IMAGE_URI=f"gcr.io/${PROJECT_ID}/junction_predict_${APP_NAME}"
+CUSTOM_PREDICTOR_IMAGE_URI="gcr.io/${PROJECT_ID}/junction_predict_${APP_NAME}"
 echo $CUSTOM_PREDICTOR_IMAGE_URI
-docker build --tag=$CUSTOM_PREDICTOR_IMAGE_URI torchserve --build-arg APP_NAME=$APP_NAME
+docker build --build-arg APP_NAME=$APP_NAME --tag=$CUSTOM_PREDICTOR_IMAGE_URI -f torchserve/Dockerfile torchserve
 
 
 # run docker container to start local TorchServe deployment
