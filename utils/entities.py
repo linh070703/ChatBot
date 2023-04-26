@@ -99,7 +99,7 @@ class Conversation:
         )
         return out
    
-    def extract_action(self, model_output: str) -> Dict:
+    def extract_action(self, model_output: str, get_raw: bool = False) -> Dict:
         """
         Extract the action from the model output.
         
@@ -140,6 +140,8 @@ class Conversation:
             
         """
         last_raw = model_output.split("Action:")[-1]
+        if get_raw:
+            return last_raw.split("Response:")[0].strip()
         if last_raw.startswith("NO_BOT_ACTION"):
             return {
                 "command": "NO_BOT_ACTION",
@@ -213,6 +215,28 @@ class Conversation:
             return "CREATE_CHAT_GROUP"
         else:
             return "CANNOT_EXTRACT_INTENT"
+
+    def extract_response(
+            self, model_output: str,
+        ) -> str:
+        """
+        Extract the intent from the model output.
+
+        Args:
+            model_output (str): The model output.
+            
+        Returns:
+            Literal['NO_BOT_ACTION', 'ASK_ASSISTANT', 'TRANSFER_MONEY']: The intent.
+            
+        Example:
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...        {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ...     ]}).extract_intent("Assistant: It was the Dodgers.")
+            'It was the Dodgers.'
+        """
+        return model_output.split("Assistant: ")[-1]
 
 
     def get_all_users(self) -> List[str]:

@@ -29,6 +29,9 @@ services:
             - ai_net
         build: .
         restart: on-failure
+        command: python3 app.py
+        volumes:
+            - .:/app
         ports:
             - "5000:5000"
 

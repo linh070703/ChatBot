@@ -7,6 +7,7 @@ from flask import (
     stream_with_context,
     send_from_directory
 )
+from flask_cors import CORS
 from typing import List, Dict, Union, Any
 from queue import Queue
 import threading
@@ -14,12 +15,18 @@ import time
 import json
 import sys
 import requests
+import logging
 from utils.entities import Conversation
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
-from utils.model_api import generate_torchserve as generate
+from utils.model_api import generate_mock, generate_torchserve
+from utils.logger import setup_logging
 
 app = Flask(__name__)
+app.config["JSON_AS_ASCII"] = False
+CORS(app)
+setup_logging('app.log')
+print = logging.info
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -30,6 +37,8 @@ def chat():
     stream = request.json.get('stream', False)
     stream_json = request.json.get('stream_json', False)
     userInfo = request.json.get('userInfo', {"status": None})
+    generate = generate_mock if request.json.get('mock', False) else generate_torchserve
+    
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
     if not messages:
@@ -66,52 +75,29 @@ def chat():
     print(f"Raw_action: {raw_action}")
 
     action = conversation.extract_action(raw_action)
+    r_action = conversation.extract_action(raw_action, get_raw=True)
+
+    print(f"Action: {action}")
+
+    next_input = conversation.prepare_model_input() + "Intent:" + intent + "\nAction:" + r_action + "\nAssistant: "
+
+    print(f"Next_input for response: {next_input}")
+    
+    assistant_answer = generate(next_input, temperature)
+
+    print(f"Assistant_answer: {assistant_answer}")
+    
+    bot_response = conversation.extract_response(assistant_answer)
+
+    print(f"Bot_response: {bot_response}")
 
     return jsonify({
         'message': {
-            'role': 'assistant', 'content': assistant_answer
+            'role': 'assistant', 'content': bot_response
         },
         'intent': intent,
         'action': action
     })
 
-
-@app.route('/api/detect-intent', methods=['POST'])
-def detect_intent():
-    _ = request.json.get('model', 'gpt4all')
-    temperature = request.json.get('temperature', 0.7)
-    command = request.json.get('command', 'chat')
-    messages = request.json.get('messages', [])
-    n_predict = request.json.get('max_num_words', 64)
-    stream = request.json.get('stream', False)
-    stream_json = request.json.get('stream_json', False)
-    userInfo = request.json.get('userInfo', {"status": None})
-    if stream:
-        return jsonify({'error': 'Stream mode is not supported.'})
-    if not messages:
-        return jsonify({'error': 'No messages provided.'})
-    print(f"Received request: {request.json}")
-    conversation = Conversation({'command': MODE[command], 'messages': messages, 'userInfo': userInfo})
-    input = conversation.raw_conversation
-    print(f"Input: {input}")
-
-    raw_intent = generate(input, temperature)
-    
-    print(f"Raw_intent: {raw_intent}")
-    intent = conversation.extract_intent(raw_intent)
-
-    if intent != 'CANNOT_EXTRACT_INTENT':
-        return jsonify({
-            'intent': intent, 
-        })
-    else:
-        print(f"Cannot extract intent from the conversation: {raw_intent}")
-        return jsonify({
-            'intent': 'CANNOT_EXTRACT_INTENT', 
-            'error': 'Cannot extract intent from the conversation.'
-        })
-
-mock_app(app)
-
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)

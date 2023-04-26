@@ -1,8 +1,5 @@
 {
-    "stream": false,
-    "userInfo": {
-        "status": "Alex owes Bob $20 yesterday dinner, owes Alice $10 for lunch"
-    },
+    "mock": true,
     "messages": [
         {
             "role": "Assistant",
