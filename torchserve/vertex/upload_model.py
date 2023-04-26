@@ -47,5 +47,6 @@ model.deploy(
     sync=True,
 )
 
-endpoint.name
+print(endpoint.name)
 model.wait()
+print("Done!")
