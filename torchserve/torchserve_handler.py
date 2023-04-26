@@ -89,7 +89,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.model = torch.jit.load(model_pt_path, map_location=self.device)
         elif self.setup_config["save_mode"] == "pretrained":
             if self.setup_config["mode"] == "chatbot":
-                self.model = AutoModelForCausalLM.from_pretrained(model_dir, device_map="auto", load_in_8bit=True)
+                self.model = AutoModelForCausalLM.from_pretrained(model_dir)
 
             else:
                 logger.warning("Missing the operation mode.")
@@ -202,7 +202,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
 
         inferences: List[str]
 
-        with torch.inference_mode():
+        with torch.inference_mode(), amp.autocast():
             inferences = self.model.generate(
                 input_ids=input_ids_batch,
                 attention_mask=attention_mask_batch,

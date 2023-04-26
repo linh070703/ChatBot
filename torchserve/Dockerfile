@@ -1,9 +1,11 @@
 FROM pytorch/torchserve:0.7.1-gpu
 
-ARG APP_NAME=chatbot
+ARG APP_NAME="bloomz-3b"
 
 # install dependencies
 RUN pip3 install transformers
+
+RUN pip3 install accelerate bitsandbytes
 
 # copy model artifacts, custom handler and other dependencies
 COPY ./torchserve_handler.py /home/model-server/
@@ -20,6 +22,8 @@ USER model-server
 EXPOSE 7080
 EXPOSE 7081
 
+RUN mkdir -p /home/model-server/model-store
+
 # create model archive file packaging model artifacts and dependencies
 RUN torch-model-archiver -f \
   --model-name=$APP_NAME \
@@ -27,13 +31,10 @@ RUN torch-model-archiver -f \
   --serialized-file=/home/model-server/pytorch_model.bin \
   --handler=/home/model-server/torchserve_handler.py \
   --extra-files "/home/model-server/config.json,/home/model-server/tokenizer.json,/home/model-server/tokenizer_config.json,/home/model-server/special_tokens_map.json" \
-  --export-path=/home/model-server/model-store
+  --export-path=/home/model-server/model-store/
 
-# run Torchserve HTTP serve to respond to prediction requests
-CMD ["torchserve", \
-     "--start", \
-     "--ts-config=/home/model-server/config.properties", \
-     "--models", \
-     "$APP_NAME=$APP_NAME.mar", \
-     "--model-store", \
-     "/home/model-server/model-store"]
+WORKDIR /home/model-server
+
+COPY ./vertex/server_run.sh /home/model-server/
+
+CMD APP_NAME=$APP_NAME bash server_run.sh
