@@ -15,3 +15,12 @@ def generate(inputs: str, temperature: float) -> str:
             # "n": int, 
         })
     ).json()['choices'][0]['text']
+
+def generate_torchserve(inputs: str, temperature: float) -> str:
+    return requests.post(
+        f"http://{MODEL_API_URL}/v1/completions",
+        headers={'Content-Type': 'application/json'},
+        data=json.dumps({
+            'prompt': inputs,
+        })
+    ).json()['text']

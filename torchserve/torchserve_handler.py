@@ -226,6 +226,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         #     verbose=True,
         # )
 
+        inferences = self.tokenizer.batch_decode(inferences, skip_special_tokens=True, clean_up_tokenization_spaces=True)
+
         logging.info(
             "Generated text chatbot: '%s'", inferences
         )
