@@ -18,7 +18,7 @@ def generate(inputs: str, temperature: float) -> str:
 
 def generate_torchserve(inputs: str, temperature: float) -> str:
     return requests.post(
-        f"http://{MODEL_API_URL}/v1/completions",
+        f"http://{MODEL_API_URL}/predictions/bloomz-3b",
         headers={'Content-Type': 'application/json'},
         data=json.dumps({
             'prompt': inputs,
