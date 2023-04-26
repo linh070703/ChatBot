@@ -1,4 +1,6 @@
-FROM pytorch/torchserve:latest-cpu
+FROM pytorch/torchserve:0.7.1-gpu
+
+ARG APP_NAME
 
 # install dependencies
 RUN pip3 install transformers
