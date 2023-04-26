@@ -136,7 +136,7 @@ class Conversation:
             ...     'command': 'Continue the following conversation as the assistan.',
             ...     'messages': [
             ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
-            ... ]}).extract_action("Action:TRANSFER_MONEY[amount=1000, from=user1, to=user2] Action:CHECK_BALANCE[from=user1]")
+            ... ]}).extract_action("Action:CREATE_CHAT_GROUP[users=user1,user2,user3]")
             
         """
         last_raw = model_output.split("Action:")[-1]
@@ -163,10 +163,13 @@ class Conversation:
                     "from": last_raw.split("from=")[-1].split("]")[0]
                 }
             }
-        # elif last_raw.startswith("CREATE_CHAT_GROUP"):
-        #     return {
-        #         "command": "CREATE_CHAT_GROUP",
-        #         "params": 
+        elif last_raw.startswith("CREATE_CHAT_GROUP"):
+            return {
+                "command": "CREATE_CHAT_GROUP",
+                "params": [
+                    last_raw.split("members=")[-1].split("]")[0].split(",")
+                ]
+            }
 
 
     

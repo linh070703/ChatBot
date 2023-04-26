@@ -27,4 +27,4 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
     ).json()['text']
 
 def generate_mock(inputs: str, temperature: float) -> str:
-    return "Intent:TRANSFER_MONEY\nAction:TRANSFER_MONEY[amount=100, from=Minh, to=Alex]\nAssistant: Sure Onii-chan 🥺! I will send Minh 100$ for the pizza."
+    return "Intent:TRANSFER_MONEY\nAction:TRANSFER_MONEY[amount=100, from=Minh, to=test9]\nAssistant: Sure Onii-chan 🥺! I will send Minh 100$ for the pizza."
