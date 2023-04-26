@@ -58,11 +58,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
         serialized_file = self.manifest["model"]["serializedFile"]
         model_pt_path = os.path.join(model_dir, serialized_file)
 
-        self.device = torch.device(
-            "cuda:" + str(properties.get("gpu_id"))
-            if torch.cuda.is_available() and properties.get("gpu_id") is not None
-            else "cpu"
-        )
+        # self.device = torch.device(
+        #     "cuda:" + str(properties.get("gpu_id"))
+        #     if torch.cuda.is_available() and properties.get("gpu_id") is not None
+        #     else "cpu"
+        # )
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         # with zipfile.ZipFile(model_dir + "/module.zip", "r") as zip_ref:
         #     zip_ref.extractall(model_dir)
@@ -89,7 +90,7 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             self.model = torch.jit.load(model_pt_path, map_location=self.device)
         elif self.setup_config["save_mode"] == "pretrained":
             if self.setup_config["mode"] == "chatbot":
-                self.model = AutoModelForCausalLM.from_pretrained(model_dir)
+                self.model = AutoModelForCausalLM.from_pretrained(model_dir, device_map='auto')
 
             else:
                 logger.warning("Missing the operation mode.")
@@ -144,7 +145,10 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Received text: '%s'", input_text)
             # preprocessing text for sequence_classification, token_classification or text_generation
             # question_context = ast.literal_eval(input_text)
-            question_context = json.loads(input_text)
+            print(f"input_text: {input_text}")
+            print(f"input_text type: {type(input_text)}")
+            # question_context = json.loads(input_text)
+            question_context = input_text
 
             # temperature = question_context.get("temperature", 0.7)
             prompt = question_context.get("prompt", "")

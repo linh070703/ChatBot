@@ -17,7 +17,7 @@ sleep 30
 
 cat > ./test.json <<END
 { 
-   "text": "Hello, how are you?"
+   "prompt": "Hello, how are you?"
 }
 END
 
