@@ -17,7 +17,7 @@ import requests
 from utils.entities import Conversation
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
-from utils.model_api import generate
+from utils.model_api import generate_torchserve as generate
 
 app = Flask(__name__)
 
@@ -36,22 +36,34 @@ def chat():
         return jsonify({'error': 'No messages provided.'})
     print(f"Received request: {request.json}")
 
-    # Get chat answer
-    conversation = Conversation({'command': MODE['chat'], 'messages': messages, 'userInfo': userInfo})
-    input = conversation.raw_conversation
-    print(f"Input: {input}")
+    # get intent
+    conversation = Conversation({'command': MODE['detect-intent'], 'messages': messages, 'userInfo': userInfo})
+    input = conversation.prepare_model_input()
+    input_for_model = input + 'Intent:'
+    print(f"Input: {input_for_model}")
 
-    assistant_answer = generate(input, temperature)
+    assistant_answer = generate(input_for_model, temperature)
     
     print(f"Assistant_answer: {assistant_answer}")
 
+    intent = conversation.extract_intent(assistant_answer)
+
+    print(f"Intent: {intent}")
+
+    if intent == 'NO_BOT_ACTION':
+        return jsonify({
+            'intent': intent,
+        })
+
     conversation.command = MODE['action']
 
-    next_input = conversation.prepare_model_input() + assistant_answer
+    next_input = conversation.prepare_model_input() + "Intent:" + intent + "\nAction:"
 
-    print(f"Next_input: {next_input}")
+    print(f"Next_input for action: {next_input}")
 
     raw_action = generate(next_input, temperature)
+    
+    print(f"Raw_action: {raw_action}")
 
     action = conversation.extract_action(raw_action)
 
@@ -59,6 +71,7 @@ def chat():
         'message': {
             'role': 'assistant', 'content': assistant_answer
         },
+        'intent': intent,
         'action': action
     })
 

@@ -22,5 +22,6 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
         headers={'Content-Type': 'application/json'},
         data=json.dumps({
             'prompt': inputs,
+            'echo': True,
         })
     ).json()['text']

@@ -14,6 +14,12 @@ class Message:
         return f'Message(role={self.role!r}, content={self.content!r})'
 
 class Conversation:
+    NO_BOT_ACTION = "NO_BOT_ACTION"
+    TRANSFER_MONEY = "TRANSFER_MONEY"
+    CHECK_BALANCE = "CHECK_BALANCE"
+    ASK_ASSISTANT = "ASK_ASSISTANT"
+    CREATE_CHAT_GROUP = "CREATE_CHAT_GROUP"
+    
     def __init__(self, conversation: Union[str, Dict]):
         """
         Extract the conversation into objects from the raw conversation string.
@@ -72,7 +78,7 @@ class Conversation:
         # output += f"System: {self.user_status}\n"
         for message in self.messages:
             output += message.role.capitalize() + ': ' + message.content + '\n'
-        output += 'Assistant: '
+        # output += 'Assistant: '
         output = emoji.demojize(output)
         output = "".join([unidecode(c) if c not in _VIETNAMESE_CHARS else c for c in output])
         self.raw_conversation = output
@@ -126,11 +132,17 @@ class Conversation:
             ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
             ... ]}).extract_action("Action:NO_ACTION")
             {'command': 'NO_ACTION', 'params': {}}
+            >>> Conversation({
+            ...     'command': 'Continue the following conversation as the assistan.',
+            ...     'messages': [
+            ...         {'role': 'user', 'content': 'Who won the world series in 2020?'},
+            ... ]}).extract_action("Action:TRANSFER_MONEY[amount=1000, from=user1, to=user2] Action:CHECK_BALANCE[from=user1]")
+            
         """
         last_raw = model_output.split("Action:")[-1]
-        if last_raw.startswith("NO_ACTION"):
+        if last_raw.startswith("NO_BOT_ACTION"):
             return {
-                "command": "NO_ACTION",
+                "command": "NO_BOT_ACTION",
                 "params": {}
             }
         elif last_raw.startswith("TRANSFER_MONEY"):
@@ -149,9 +161,16 @@ class Conversation:
                     "from": last_raw.split("from=")[-1].split("]")[0]
                 }
             }
+        # elif last_raw.startswith("CREATE_CHAT_GROUP"):
+        #     return {
+        #         "command": "CREATE_CHAT_GROUP",
+        #         "params": 
+
 
     
-    def extract_intent(self, model_output: str) -> Literal['NO_BOT_ACTION', 'ASK_ASSISTANT', 'TRANSFER_MONEY']:
+    def extract_intent(
+            self, model_output: str,
+        ) -> Literal['NO_BOT_ACTION', 'ASK_ASSISTANT', 'TRANSFER_MONEY', 'CHECK_BALANCE', 'CREATE_CHAT_GROUP']:
         """
         Extract the intent from the model output.
 
@@ -188,6 +207,10 @@ class Conversation:
             return "ASK_ASSISTANT"
         elif raw_intent.__contains__("TRANSFER_MONEY"):
             return "TRANSFER_MONEY"
+        elif raw_intent.__contains__("CHECK_BALANCE"):
+            return "CHECK_BALANCE"
+        elif raw_intent.__contains__("CREATE_CHAT_GROUP"):
+            return "CREATE_CHAT_GROUP"
         else:
             return "CANNOT_EXTRACT_INTENT"
 
