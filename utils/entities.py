@@ -100,7 +100,7 @@ class Conversation:
         )
         return out
    
-    def extract_action(self, model_output: str, get_raw: bool = False) -> Dict:
+    def extract_action(self, model_output: str, intent: str,  get_raw: bool = False) -> Dict:
         """
         Extract the action from the model output.
         
@@ -143,28 +143,29 @@ class Conversation:
         last_raw = model_output.split("Action:")[-1]
         if get_raw:
             return last_raw.split("Response:")[0].strip()
-        if last_raw.startswith("NO_BOT_ACTION"):
+        if last_raw.startswith("NO_BOT_ACTION") or intent == "NO_BOT_ACTION":
             return {
                 "command": "NO_BOT_ACTION",
                 "params": {}
             }
-        elif last_raw.startswith("TRANSFER_MONEY"):
+        elif last_raw.startswith("TRANSFER_MONEY") or intent == "TRANSFER_MONEY":
             return {
                 "command": "TRANSFER_MONEY",
                 "params": {
                     "amount": last_raw.split("amount=")[-1].split(",")[0],
                     "from": last_raw.split("from=")[-1].split(",")[0],
-                    "to": last_raw.split("to=")[-1].split("]")[0]
+                    "to": last_raw.split("to=")[-1].split(",")[0],
+                    "msg": last_raw.split("msg=")[-1].split("]")[0]
                 }
             }
-        elif last_raw.startswith("CHECK_BALANCE"):
+        elif last_raw.startswith("CHECK_BALANCE") or intent == "CHECK_BALANCE":
             return {
                 "command": "CHECK_BALANCE",
                 "params": {
                     "from": last_raw.split("from=")[-1].split("]")[0]
                 }
             }
-        elif last_raw.startswith("CREATE_CHAT_GROUP"):
+        elif last_raw.startswith("CREATE_CHAT_GROUP") or intent == "CREATE_CHAT_GROUP":
             return {
                 "command": "CREATE_CHAT_GROUP",
                 "params": [

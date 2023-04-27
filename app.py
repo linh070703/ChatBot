@@ -19,14 +19,20 @@ import logging
 from utils.entities import Conversation, get_all_upper_triangle
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
-from utils.model_api import generate_mock, generate_torchserve, generate
+from utils.model_api import generate_mock, generate_torchserve, generate_chatgpt_api
 from utils.logger import setup_logging
+import re
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
 setup_logging('app.log')
 print = logging.info
+
+# check health
+@app.route('/health', methods=['POST'])
+def health():
+    return jsonify({'status': 'ok'})
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -37,7 +43,7 @@ def chat():
     stream = request.json.get('stream', False)
     stream_json = request.json.get('stream_json', False)
     userInfo = request.json.get('userInfo', {"status": None})
-    # generate = generate_mock if request.json.get('mock', False) else generate_torchserve
+    generate = generate_chatgpt_api
     
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
@@ -99,8 +105,8 @@ def chat():
     
     print(f"Raw_action: {raw_action}")
 
-    action = conversation.extract_action(raw_action)
-    r_action = conversation.extract_action(raw_action, get_raw=True)
+    action = conversation.extract_action(raw_action, intent=intent)
+    r_action = conversation.extract_action(raw_action, intent=intent, get_raw=True)
 
     print(f"Action: {action}")
 
@@ -118,6 +124,7 @@ def chat():
 
     print(f"Bot_response: {bot_response}")
 
+    bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
 
     answer = jsonify({
         'message': {
@@ -131,7 +138,18 @@ def chat():
     print(f"Answer: {answer}")
 
     if answer:
-        return answer
+        if intent == 'NO_BOT_ACTION':
+            return jsonify({
+                'message': {
+                    'role': 'assistant', 'content': "I don\'t understand."
+                },
+                'action': {
+                    'command': 'NO_BOT_ACTION',
+                    'params': {}
+                }
+            })
+        else:
+            return answer
     else:
         return jsonify({
             'message': {
