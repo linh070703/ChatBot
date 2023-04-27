@@ -19,7 +19,7 @@ import logging
 from utils.entities import Conversation
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
-from utils.model_api import generate_mock, generate_torchserve
+from utils.model_api import generate_mock, generate_torchserve, generate
 from utils.logger import setup_logging
 
 app = Flask(__name__)
@@ -37,13 +37,17 @@ def chat():
     stream = request.json.get('stream', False)
     stream_json = request.json.get('stream_json', False)
     userInfo = request.json.get('userInfo', {"status": None})
-    generate = generate_mock if request.json.get('mock', False) else generate_torchserve
+    # generate = generate_mock if request.json.get('mock', False) else generate_torchserve
     
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
     if not messages:
         return jsonify({'error': 'No messages provided.'})
     print(f"Received request: {request.json}")
+
+    # only 4 last messages
+    messages = messages[-4:]
+    print(f"Messages: {messages}")
 
     # get intent
     conversation = Conversation({'command': MODE['detect-intent'], 'messages': messages, 'userInfo': userInfo})

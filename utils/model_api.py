@@ -17,14 +17,16 @@ def generate(inputs: str, temperature: float) -> str:
     ).json()['choices'][0]['text']
 
 def generate_torchserve(inputs: str, temperature: float) -> str:
-    return requests.post(
+    data = requests.post(
         f"http://{MODEL_API_URL}/predictions/bloomz-3b",
         headers={'Content-Type': 'application/json'},
         data=json.dumps({
             'prompt': inputs,
             'echo': True,
         })
-    ).json()['text']
+    ).json()
+    print(f'generate_torchserve: {data}')
+    return data['text']
 
 def generate_mock(inputs: str, temperature: float) -> str:
     return "Intent:TRANSFER_MONEY\nAction:TRANSFER_MONEY[amount=100, from=Minh, to=test9]\nAssistant: Sure Onii-chan 🥺! I will send Minh 100$ for the pizza."
