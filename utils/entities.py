@@ -13,6 +13,7 @@ class Message:
     def __repr__(self):
         return f'Message(role={self.role!r}, content={self.content!r})'
 
+
 class Conversation:
     NO_BOT_ACTION = "NO_BOT_ACTION"
     TRANSFER_MONEY = "TRANSFER_MONEY"
@@ -263,6 +264,20 @@ class Conversation:
         # print(f'List of users: {output}')
         return output
     
+def get_all_upper_triangle(messages: List[str]) -> List[List[str]]:
+    """
+    Get all upper triangle of messages.
+    Example:
+        >>> get_all_upper_triangle(['A', 'B', 'C', 'D'])
+        [
+            ['D'],
+            ['C', 'D'],
+            ['B', 'C', 'D'],
+            ['A', 'B', 'C', 'D']
+        ]
+    """
+    return [messages[i:] for i in range(len(messages))]
+
 
 if __name__ == "__main__":
     import doctest

@@ -10,7 +10,7 @@ def generate(inputs: str, temperature: float) -> str:
         data=json.dumps({
             'prompt': inputs,
             "min_tokens": 30,
-            "max_tokens": 2048,
+            "max_tokens": 96,
             "temperature": temperature,
             # "n": int, 
         })

@@ -16,7 +16,7 @@ import json
 import sys
 import requests
 import logging
-from utils.entities import Conversation
+from utils.entities import Conversation, get_all_upper_triangle
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
 from utils.model_api import generate_mock, generate_torchserve, generate
@@ -45,12 +45,19 @@ def chat():
         return jsonify({'error': 'No messages provided.'})
     print(f"Received request: {request.json}")
 
+    print(f"All Messages: {messages}")
+    print(f'====================')
     # only 4 last messages
-    messages = messages[-4:]
-    print(f"Messages: {messages}")
+    messages = messages[-3:]
+    print(f"Last 3 Messages: {messages}")
 
+    answer = None
+
+    # for _messages in get_all_upper_triangle(messages):
+    _messages = messages
+    print(f"Using Messages: {_messages}")
     # get intent
-    conversation = Conversation({'command': MODE['detect-intent'], 'messages': messages, 'userInfo': userInfo})
+    conversation = Conversation({'command': MODE['detect-intent'], 'messages': _messages, 'userInfo': userInfo})
     input = conversation.prepare_model_input()
     input_for_model = input + 'Intent: '
     print(f"Input: {input_for_model}")
@@ -84,7 +91,7 @@ def chat():
 
     conversation.command = MODE['action']
 
-    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: "
+    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: " + intent
 
     print(f"Next_input for action: {next_input}")
 
@@ -99,7 +106,7 @@ def chat():
 
     conversation.command = MODE['response']
 
-    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction:" + r_action + "\nAssistant: "
+    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: " + r_action + "\nAssistant: "
 
     print(f"Next_input for response: {next_input}")
     
@@ -111,13 +118,31 @@ def chat():
 
     print(f"Bot_response: {bot_response}")
 
-    return jsonify({
+
+    answer = jsonify({
         'message': {
             'role': 'assistant', 'content': bot_response
         },
         'intent': intent,
         'action': action
     })
+        # break
+    
+    print(f"Answer: {answer}")
+
+    if answer:
+        return answer
+    else:
+        return jsonify({
+            'message': {
+                'role': 'assistant', 'content': 'I don\'t understand.'
+            },
+            'action': {
+                'command': 'NO_BOT_ACTION',
+                'params': {}
+            }
+        })
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
