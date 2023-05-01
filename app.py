@@ -50,7 +50,13 @@ def chat():
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
     if not messages:
-        return jsonify({'error': 'No messages provided.'})
+        bot_response, suggestions = ask_assistant(messages)
+        return jsonify({
+            'message': {
+                'role': 'assistant', 'content': bot_response
+            },
+            'suggestions': suggestions
+        })
     print(f"Received request: {request.json}")
 
     print(f"All Messages: {messages}")
@@ -71,20 +77,22 @@ def chat():
     elif intention == 'ASK_ASSISTANT':
         print(f"Bot_response: {bot_response}")
 
-        bot_response = ask_assistant(messages, userInfo)
+        bot_response, suggestions = ask_assistant(messages)
 
         bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
+
         print(f"Answer: {bot_response}")
 
-        res = jsonify({
+        res = {
             'message': {
                 'role': 'assistant', 'content': bot_response
             },
             'action': {
                 'command': 'ASK_ASSISTANT',
                 'params': {}
-            }
-        })
+            },
+            'suggestions': suggestions,
+        }
     elif intention == 'CHECK_BALANCE':
         res = {
             'action': {
