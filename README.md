@@ -9,7 +9,14 @@ bash install_dependencies.sh
 python3 app.py
 ```
 
-## 3. Test
+## API testing
+
 ```
-curl -X POST -H "Content-Type: application/json" -T sample-query.json https:/ai.bohocdi.works/mock/chat
+curl -X POST -H "Content-Type: application/json" \
+    -d '{ \
+        "message": [ \
+            {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."} \
+        ] \
+    }' \
+    https://bhdl.jsclub.me/mock/chat
 ```
