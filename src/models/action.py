@@ -74,7 +74,7 @@ def get_action_params(
         else:
             params["msg"] = msg
     elif action == "CREATE_CHAT_GROUP":
-        params["users"] = output.split("|")[0].split("[")[1].split(",")
+        params["members"] = output.split("|")[0].split("[")[1].split(",")
         group_name = output.split("[")[1].split("|")[1:]
         group_name = "|".join(group_name).split("]")[0].strip()
         if group_name.lower() == "null" or group_name.lower() == "none" or group_name == "":
