@@ -1,14 +1,12 @@
-import re
-
-
-
 import os
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_action_chatgpt_api
 from utils.logger import setup_logging_display_only
+from expert_system import loan, money_management, economical
 import logging
 
 PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive responses along with useful suggestion when the user ask for."""
@@ -71,12 +69,12 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
 
     message = messages[-1]["message"]
-    if is_money_management_question(message):
-        return money_management_suggestion(messages)
-    elif is_economical_question(message):
-        return economical_suggestion(messages)
-    elif is_loan_question(message):
-        return loan_suggestion(messages)
+    if money_management.is_money_management_question(message):
+        return money_management.money_management_suggestion(messages)
+    elif economical.is_economical_question(message):
+        return economical.economical_suggestion(messages)
+    elif loan.is_loan_question(message):
+        return loan.loan_suggestion(messages)
     else:
         return general_suggestion(messages)
 

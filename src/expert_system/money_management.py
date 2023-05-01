@@ -1,5 +1,7 @@
-def is_money_management_question():
+from typing import Dict, List, Tuple, Union, Literal, Any
+
+def is_money_management_question(message: Dict[str, str]) -> bool:
     ...
 
-def money_management_suggestion():
+def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     ...
