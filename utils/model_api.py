@@ -51,7 +51,7 @@ def generate_action_chatgpt_api(inputs: str) -> str:
         model="text-davinci-003",
         prompt=inputs,
         temperature=0,
-        max_tokens=8,
+        max_tokens=12,
         top_p=1.0,
         frequency_penalty=0.0,
         presence_penalty=0.0,
