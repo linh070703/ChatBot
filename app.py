@@ -39,13 +39,9 @@ def health():
 @app.route('/api/chat', methods=['POST'])
 def chat():
     _ = request.json.get('model', 'gpt4all')
-    temperature = request.json.get('temperature', 0.7)
     messages = request.json.get('messages', [])
-    n_predict = request.json.get('max_num_words', 64)
     stream = request.json.get('stream', False)
-    stream_json = request.json.get('stream_json', False)
     userInfo = request.json.get('userInfo', {"status": None})
-    generate = generate_chatgpt_api
     for message in messages:
         assert 'role' not in message, 'Role is not allowed. Deprecated.'
         assert 'user' in message, 'User is not provided.'
