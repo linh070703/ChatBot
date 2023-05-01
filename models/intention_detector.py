@@ -30,6 +30,7 @@ def dectect_user_intention(
         "CHECK_BALANCE"
     """
     assert len(messages) > 0, "Conversation history must not be empty."
+    messages = messages[-5:]
     conversation = "\n".join([f"{message['user']}: {message['message']}" for message in messages])
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s intention: "
