@@ -29,7 +29,7 @@ def get_action_params(
         >>> messages = [
         ...     {"user": "Minh", "message": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
         ... ]
-        >>> dectect_user_intention(messages, action="TRANSFER")
+        >>> get_action_params(messages, action="TRANSFER")
         {
             "receiver": "Nam",
             "amount": "6966000",
@@ -38,7 +38,7 @@ def get_action_params(
         >>> messages = [    
         ...     {"user": "Minh", "message": "Chuyển mỗi người 100k."},
         ... ]
-        >>> dectect_user_intention(messages, action="TRANSFER_TO_EACH_USERS")
+        >>> get_action_params(messages, action="TRANSFER_TO_EACH_USERS")
         {
             "amount_each": "100000",
             "msg": None,
@@ -46,7 +46,7 @@ def get_action_params(
         >>> messages = [
         ...     {"user": "Minh", "message": "Tao muốn tạo nhóm chat với Nam và Lan."},
         ... ]
-        >>> dectect_user_intention(messages, action="CREATE_CHAT_GROUP")
+        >>> get_action_params(messages, action="CREATE_CHAT_GROUP")
         {
             "users": [
                 "Nam",
