@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_action_params_chatgpt_api
-from utils.logger import setup_logging_display_only, pprint
+from utils.logger import setup_logging_display_only, pprint, print
 
 PROMPT = """This is a financial assistant system. This system is able to take corresponding action when user request. English and Vietnamese are supported. There are 3 possible system's action: TRANSFER[<receiver>,<amount>|<msg (null)>], TRANSFER_TO_EACH_USERS[<amount_each>|<msg (null)>], CREATE_CHAT_GROUP[<user_comma_separated>|<group_name (null)>].
 Note that when TRANSFER, money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000)"""

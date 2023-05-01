@@ -20,14 +20,16 @@ from utils.entities import Conversation, get_all_upper_triangle
 from utils.prompt_factory import MODE
 from utils.mock import mock_app
 from utils.model_api import generate_mock, generate_torchserve, generate_chatgpt_api
-from utils.logger import setup_logging
+from utils.logger import setup_logging, pprint, print
+from models.action import get_action_params
+from models.intention_detector import dectect_user_intention
+from models.ask_assistant import ask_assistant
 import re
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 CORS(app)
 setup_logging('app.log')
-print = logging.info
 
 # check health
 @app.route('/health', methods=['POST'])
@@ -44,6 +46,10 @@ def chat():
     stream_json = request.json.get('stream_json', False)
     userInfo = request.json.get('userInfo', {"status": None})
     generate = generate_chatgpt_api
+    for message in messages:
+        assert 'role' not in message, 'Role is not allowed. Deprecated.'
+        assert 'user' in message, 'User is not provided.'
+        assert 'message' in message, 'Message is not provided.'
     
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
@@ -53,114 +59,74 @@ def chat():
 
     print(f"All Messages: {messages}")
     print(f'====================')
-    # only 4 last messages
-    messages = messages[-3:]
-    print(f"Last 3 Messages: {messages}")
 
-    answer = None
+    intention = dectect_user_intention(messages)
 
-    # for _messages in get_all_upper_triangle(messages):
-    _messages = messages
-    print(f"Using Messages: {_messages}")
-    # get intent
-    conversation = Conversation({'command': MODE['detect-intent'], 'messages': _messages, 'userInfo': userInfo})
-    input = conversation.prepare_model_input()
-    input_for_model = input + 'Intent: '
-    print(f"Input: {input_for_model}")
+    print(f"Intention: {intention}")
 
-    assistant_answer = generate(input_for_model, temperature)
-    
-    print(f"Assistant_answer: {assistant_answer}")
-
-    intent = conversation.extract_intent(assistant_answer)
-
-    print(f"Intent: {intent}")
-
-    if intent == 'NO_BOT_ACTION':
+    if intention == 'NO_SYSTEM_ACTION':
         return jsonify({
-            'intent': intent,
-        })
-    elif intent == 'ASK_ASSISTANT':
-        conversation.command = MODE['response']
-        next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAssistant: "
-        print(f"Next_input for response: {next_input}")
-        assistant_answer = generate(next_input, temperature)
-        print(f"Assistant_answer: {assistant_answer}")
-        bot_response = conversation.extract_response(assistant_answer)
-        print(f"Bot_response: {bot_response}")
-        return jsonify({
-            'message': {
-                'role': 'assistant', 'content': bot_response
-            },
-            'intent': intent,
-        })
-
-    conversation.command = MODE['action']
-
-    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: " + intent
-
-    print(f"Next_input for action: {next_input}")
-
-    raw_action = generate(next_input, temperature)
-    
-    print(f"Raw_action: {raw_action}")
-
-    action = conversation.extract_action(raw_action, intent=intent)
-    r_action = conversation.extract_action(raw_action, intent=intent, get_raw=True)
-
-    print(f"Action: {action}")
-
-    conversation.command = MODE['response']
-
-    next_input = conversation.prepare_model_input() + "Intent: " + intent + "\nAction: " + r_action + "\nAssistant: "
-
-    print(f"Next_input for response: {next_input}")
-    
-    assistant_answer = generate(next_input, temperature)
-
-    print(f"Assistant_answer: {assistant_answer}")
-    
-    bot_response = conversation.extract_response(assistant_answer)
-
-    print(f"Bot_response: {bot_response}")
-
-    bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
-
-    answer = jsonify({
-        'message': {
-            'role': 'assistant', 'content': bot_response
-        },
-        'intent': intent,
-        'action': action
-    })
-        # break
-    
-    print(f"Answer: {answer}")
-
-    if answer:
-        if intent == 'NO_BOT_ACTION':
-            return jsonify({
-                'message': {
-                    'role': 'assistant', 'content': "I don\'t understand."
-                },
-                'action': {
-                    'command': 'NO_BOT_ACTION',
-                    'params': {}
-                }
-            })
-        else:
-            return answer
-    else:
-        return jsonify({
-            'message': {
-                'role': 'assistant', 'content': 'I don\'t understand.'
-            },
             'action': {
-                'command': 'NO_BOT_ACTION',
+                'command': 'NO_ACTION',
                 'params': {}
             }
         })
+    
+    elif intention == 'ASK_ASSISTANT':
+        print(f"Bot_response: {bot_response}")
 
+        bot_response = ask_assistant(messages, userInfo)
+
+        bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
+        print(f"Answer: {bot_response}")
+
+        res = jsonify({
+            'message': {
+                'role': 'assistant', 'content': bot_response
+            },
+            'action': {
+                'command': 'ASK_ASSISTANT',
+                'params': {}
+            }
+        })
+    elif intention == 'CHECK_BALANCE':
+        res = {
+            'action': {
+                'command': 'CHECK_BALANCE',
+                'params': {
+                    'user': messages[-1]['user']
+                }
+            }
+        }
+    elif intention == 'TRANSFER':
+        action_params = get_action_params(messages, action='TRANSFER')
+        res = {
+            'action': {
+                'command': 'TRANSFER',
+                'params': action_params
+            }
+        }
+    elif intention == 'TRANSFER_TO_EACH_USERS':
+        action_params = get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
+        res = {
+            'action': {
+                'command': 'TRANSFER_TO_EACH_USERS',
+                'params': action_params
+            }
+        }
+    elif intention == 'CREATE_CHAT_GROUP':
+        action_params = get_action_params(messages, action='CREATE_CHAT_GROUP')
+        res = {
+            'action': {
+                'command': 'CREATE_CHAT_GROUP',
+                'params': action_params
+            }
+        }
+    else:
+        raise Exception(f"Unknown intention: {intention}")
+    
+    logging.info(f"Response: {res}")
+    return jsonify(res)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
