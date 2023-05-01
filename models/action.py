@@ -4,12 +4,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_action_params_chatgpt_api
-from utils.logger import setup_logging_display_only
+from utils.logger import setup_logging_display_only, pprint
 
-PROMPT = """ This is a financial assistant system. This system is able to take corresponding action when user request. English and Vietnamese are supported. There are 3 possible system's action: TRANSFER[<receiver>,<amount>], TRANSFER_TO_EACH_USERS[<amount_each>], CREATE_CHAT_GROUP[<user_comma_separated>].
-Note that when TRANSFER, money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000)"""
-# Minh: Tao muốn chuyển khoản cho Nam 6966 k VND.
-# Minh's request system action: TRANSFER[Nam,6966000]
+PROMPT = """This is a financial assistant system. This system is able to take corresponding action when user request. English and Vietnamese are supported. There are 3 possible system's action: TRANSFER[<receiver>,<amount>|<msg (null)>], TRANSFER_TO_EACH_USERS[<amount_each>|<msg (null)>], CREATE_CHAT_GROUP[<user_comma_separated>|<group_name (null)>].
+Note that when TRANSFER, money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000)"""
+# Minh: I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'.
+# Minh's request system action: TRANSFER[Hung,3289723|Chúc mừng sinh nhật nhé, nhớ học giỏi]
 
 def get_action_params(
         messages: List[Dict[str, str]],
@@ -27,12 +27,13 @@ def get_action_params(
 
     Example:
         >>> messages = [
-        ...     {"user": "Minh", "message": "Tao muốn chuyển khoản cho Nam 6966 k VND."},
+        ...     {"user": "Minh", "message": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
         ... ]
         >>> dectect_user_intention(messages, action="TRANSFER")
         {
             "receiver": "Nam",
             "amount": "6966000",
+            "msg": "bún đậu",
         }
         >>> messages = [    
         ...     {"user": "Minh", "message": "Chuyển mỗi người 100k."},
@@ -40,6 +41,7 @@ def get_action_params(
         >>> dectect_user_intention(messages, action="TRANSFER_TO_EACH_USERS")
         {
             "amount_each": "100000",
+            "msg": None,
         }
         >>> messages = [
         ...     {"user": "Minh", "message": "Tao muốn tạo nhóm chat với Nam và Lan."},
@@ -49,10 +51,12 @@ def get_action_params(
             "users": [
                 "Nam",
                 "Lan",
-            ]
+            ],
+            "group_name": None,
         }
     """
     assert action in ["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"], f"Invalid action: {action}"
+    messages = messages[-2:]
     conversation = "\n".join([f"{message['user']}: {message['message']}" for message in messages])
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s request system action: {action}"
@@ -61,12 +65,30 @@ def get_action_params(
     print("Model output: \n", output + "]")
     params = {}
     if action == "TRANSFER":
-        params["receiver"] = output.split("[")[1].split(",")[0]
-        params["amount"] = output.split("[")[1].split(",")[1]
+        params["receiver"] = output.split("|")[0].split("[")[1].split(",")[0].strip()
+        params["amount"] = output.split("|")[0].split("[")[1].split(",")[1].strip()
+        msg = output.split("[")[1].split("|")[1:]
+        msg = "|".join(msg).split("]")[0].strip()
+        if msg.lower() == "null" or msg.lower() == "none" or msg == "":
+            params["msg"] = None
+        else:
+            params["msg"] = msg
     elif action == "CREATE_CHAT_GROUP":
-        params["users"] = output.split("[")[1].split(",")
+        params["users"] = output.split("|")[0].split("[")[1].split(",")
+        group_name = output.split("[")[1].split("|")[1:]
+        group_name = "|".join(group_name).split("]")[0].strip()
+        if group_name.lower() == "null" or group_name.lower() == "none" or group_name == "":
+            params["group_name"] = None
+        else:
+            params["group_name"] = group_name
     elif action == "TRANSFER_TO_EACH_USERS":
-        params["amount_each"] = output.split("[")[1].split(",")[0]
+        params["amount_each"] = output.split("|")[0].split("[")[1].split(",")[0].strip()
+        msg = output.split("[")[1].split("|")[1:]
+        msg = "|".join(msg).split("]")[0].strip()
+        if msg.lower() == "null" or msg.lower() == "none" or msg == "":
+            params["msg"] = None
+        else:
+            params["msg"] = msg
     return params
 
 
@@ -78,8 +100,9 @@ if __name__ == "__main__":
         {"user": "Minh", "message": "Yes, I am ready."},
         {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung."},
         {"user": "Cường", "message": "Chuyển quà sinh nhật mỗi cháu 400k"},
-        {"user": "Hung", "message": "I want to create a chat group with Minh, Lan, and Cường named 'Party'."},
-        {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật'."},
+        {"user": "Minh", "message": "Chuyển Alisa ba chục nghìn tiền bún đậu"},
+        {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'."},
+        {"user": "Hung", "message": "I want to create a chat group with Minh, Lan, and Cường named 'Party| this sunday'."},
     ], action="TRANSFER")
     print("Output: ", out)
         
