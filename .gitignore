@@ -132,5 +132,5 @@ dmypy.json
 *.bin.orig
 pyllamacpp/
 *.model
-models/
+# models/
 bigscience/

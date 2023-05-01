@@ -36,3 +36,7 @@ def setup_logging_display_only():
 
 def pprint(obj):
     logging.info(pformat(obj, indent=4))
+
+# def print(*obj):
+#     message = " ".join([str(o) for o in obj])
+#     logging.info(message)
