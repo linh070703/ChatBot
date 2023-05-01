@@ -4,12 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import re
 from typing import List, Literal, Dict, Union, Any, Tuple
-from utils.model_api import generate_action_chatgpt_api
-from utils.logger import setup_logging_display_only
+from utils.model_api import generate_conversation_chatgpt_api
+from utils.logger import setup_logging_display_only, logging
 from expert_system import loan, money_management, economical
-import logging
 
-PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive responses along with useful suggestion when the user ask for."""
+PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive response along with useful general detailed advices for user. Answer in language as same as User's question. English and Vietnamese are supported. Answers should be no more than 250 words and using markdown syntax when needed."""
 INTRODUCTION = """Hi, I am your personal finance assistant. I can help you with the following tasks:
 - Check your account balance
 - Transfer money to another account
@@ -82,9 +81,21 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
     Suggest general advice
     """
-    ...
+    messages = messages[-12:]
+    conversation = "\n".join([f"{'User' if message['user'].lower() != 'assistant' else 'Assistant'}: {message['message']}" for message in messages])
+    model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
+    print("Model input: \n", model_input)
+    output = generate_conversation_chatgpt_api(model_input)
+    print("Model output: \n", output)
+    return output, []
+    
 
 if __name__ == "__main__":
     setup_logging_display_only()
-    logging.info(f"Output: {out}")
+    response, suggestions = general_suggestion(messages=[
+        {"user": "Minh", "message": "I want to ask for financial advice"},
+        {"user": "assistant", "message": "Sure, I can help you with that. What do you want to ask?"},
+        {"user": "Minh", "message": "Help me create a monthly budget plan"},
+    ])
+    print(f"Response: {response}")
         

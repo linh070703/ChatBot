@@ -33,16 +33,16 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
     print(f'generate_torchserve: {data}')
     return data['text']
 
-def generate_conversation_chatgpt_api(inputs: str, temperature: float) -> str:
+def generate_conversation_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
         prompt=inputs,
         # temperature=1,
-        max_tokens=128,
-        top_p=1.0,
+        max_tokens=512,
+        top_p=0.95,
         frequency_penalty=0.0,
         presence_penalty=0.0,
-        # stop=["\"\"\""]
+        stop=["User:"],
     )['choices'][0]['text']
     return response
 
