@@ -124,6 +124,7 @@ def chat():
         'suggestions': ['Help me create a monthly budget plan', 'Help me calculate my target saving plan', 'Help me detect if a loan is usury or not', 'Help me invest my money', 'Help me pay off my debt']
     }
     """
+    print(f"Received request: {request.json}")
     _ = request.json.get('model', 'gpt4all')
     messages = request.json.get('messages', [])
     stream = request.json.get('stream', False)
@@ -143,7 +144,6 @@ def chat():
             },
             'suggestions': suggestions
         })
-    print(f"Received request: {request.json}")
 
     print(f"All Messages: {messages}")
     print(f'====================')
