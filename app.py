@@ -38,6 +38,92 @@ def health():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
+    """
+    Endpoint: /api/chat
+    Content-Type: application/json
+    Method: POST
+    Request:
+        Body: {
+            messages: [
+                {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."},
+            ]
+        }
+    Response:
+        {
+            action: {
+                command: "TRANSFER",
+                params: {
+                    "receiver": "Minh",
+                    "amount": "300000",
+                    "msg": null
+                }
+            }
+        }
+    ---
+    Example:
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."},
+    ...     ]
+    ... }).json()
+    {'action': {'command': 'TRANSFER', 'params': {'receiver': 'Minh', 'amount': '300000', 'msg': None}}}
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Cuong", "content": "Tao muốn chuyển mỗi đứa 800k tiền mừng năm mới."},
+    ...     ]
+    ... }).json()
+    {'action': {'command': 'TRANSFER_TO_EACH_USERS', 'params': {'amount_each': '800000', 'msg': 'tiền mừng năm mới'}}}
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "message": "Tao muốn tạo nhóm chat với Nam và Lan."},
+    ...     ]
+    ... }).json()
+    {'action': {'command': 'CREATE_CHAT_GROUP', 'params': {'members': ['Nam', 'Lan']}}}
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "message": "Tài khoản của tao còn bao nhiêu tiền?"},
+    ...     ]
+    ... }).json()
+    {'action': {'command': 'CHECK_BALANCE', 'params': {'user': 'Minh'}}}
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "message": "Ủa mày thích ăn đấm không?"},
+    ...     ]
+    ... }).json()
+    {'action': {'command': 'NO_ACTION', 'params': {}}}
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "message": "Tôi muốn được tư vấn về việc lên kế hoạch quản lý tài chính."},
+    ...     ]
+    ... }).json()
+    {
+        'action': {
+            'command': 'ASK_ASSISTANT',
+            'params': {},
+        },
+        'message': {'role': 'assistant', 'content': 'Ok, thu nhập mỗi tháng của bạn là bao nhiêu?'},
+        'suggestions': []
+    }
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "message": "I want to ask for financial advice"},
+    ...     ]
+    ... }).json()
+    {
+        'action': {
+            'command': 'ASK_ASSISTANT',
+            'params': {},
+        },
+        'message': {'role': 'assistant', 'content': 'Sure, I can help you with that. What do you want to ask?'},
+        'suggestions': ['Help me create a monthly budget plan', 'Help me calculate my target saving plan', 'Help me detect if a loan is usury or not', 'Help me invest my money', 'Help me pay off my debt']
+    }
+    """
     _ = request.json.get('model', 'gpt4all')
     messages = request.json.get('messages', [])
     stream = request.json.get('stream', False)
