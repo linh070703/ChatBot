@@ -102,7 +102,7 @@ if __name__ == "__main__":
         {"user": "Cường", "message": "Chuyển quà sinh nhật mỗi cháu 400k"},
         {"user": "Minh", "message": "Chuyển Alisa ba chục nghìn tiền bún đậu"},
         {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'."},
-        {"user": "Hung", "message": "I want to create a chat group with Minh, Lan, and Cường named 'Party| this sunday'."},
-    ], action="TRANSFER")
+        {"user": "Hung", "message": "I want to create a chat group for Minh, me, Lan, and Cường named 'Party| this sunday'."},
+    ], action="CREATE_CHAT_GROUP")
     print("Output: ", out)
         
