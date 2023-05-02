@@ -92,7 +92,7 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
             "Tôi muốn được tư vấn tài chính"
         ]
 
-    message = messages[-1]["content"]
+    message: str = messages[-1]["content"]
     if money_management.is_money_management_question(message):
         return money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(message):
