@@ -47,7 +47,7 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     Ask assistant for help.
     
     Args:
-        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "message". "user" is the name of user who sent the message. "message" is the message sent by the user.
+        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "content". "user" is the name of user who sent the message. "content" is the message sent by the user.
 
     Returns:
         Response (str): Response from the assistant.

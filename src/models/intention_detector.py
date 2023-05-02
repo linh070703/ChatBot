@@ -18,7 +18,7 @@ def dectect_user_intention(
     Detect user's intention from conversation history.
 
     Args:
-        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "message". "user" is the name of user who sent the message. "message" is the message sent by the user.
+        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "content". "user" is the name of user who sent the message. "content" is the message sent by the user.
 
     Returns:
         Literal["CHECK_BALANCE", "TRANSFER", "CREATE_CHAT_GROUP", "ASK_ASSISTANT", "NO_SYSTEM_ACTION"]: User's intention
