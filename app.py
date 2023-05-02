@@ -16,10 +16,6 @@ import json
 import sys
 import requests
 import logging
-from src.utils.entities import Conversation, get_all_upper_triangle
-from src.utils.prompt_factory import MODE
-from src.utils.mock import mock_app
-from src.utils.model_api import generate_mock, generate_torchserve, generate_chatgpt_api
 from src.utils.logger import setup_logging, pprint, print
 from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention

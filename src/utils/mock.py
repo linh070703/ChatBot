@@ -1,8 +1,8 @@
 import requests
 from flask import jsonify, request
-from utils.entities import Conversation
-from utils.prompt_factory import MODE
-from utils.model_api import generate
+from .entities import Conversation
+from .prompt_factory import MODE
+from .model_api import generate
 
 def mock_app(app):
     @app.route('/mock/chat', methods=['POST'])

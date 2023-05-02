@@ -8,7 +8,8 @@ services:
         restart: on-failure
         command: python3 app.py
         volumes:
-            - .:/app
+            - ./src/:/app/src/
+            - ./app.py:/app/app.py
         ports:
             - "5001:5000"
         env_file:
