@@ -128,14 +128,19 @@ def chat():
     stream = request.json.get('stream', False)
     userInfo = request.json.get('userInfo', {"status": None})
     for message in messages:
-        assert 'role' not in message, 'Role is not allowed. Deprecated.'
-        assert 'message' not in message, 'Message is not allowed. Deprecated.'
-        assert 'user' in message, 'User is not provided.'
-        assert 'content' in message, 'content is not provided.'
+        if 'role' in message:
+            return jsonify({'error': 'Role is not allowed. Deprecated.'}), 400
+        if 'message' in message:
+            return jsonify({'error': 'Message is not allowed. Deprecated.'}), 400
+        if 'user' not in message:
+            return jsonify({'error': 'User is not provided.'}), 400
+        if 'content' not in message:
+            return jsonify({'error': 'Content is not provided.'}), 400
+        
 
     
     if stream:
-        return jsonify({'error': 'Stream mode is not supported.'})
+        return jsonify({'error': 'Stream mode is not supported.'}), 400
     if not messages:
         bot_response, suggestions = ask_assistant(messages)
         return jsonify({
