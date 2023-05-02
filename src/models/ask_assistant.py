@@ -53,23 +53,23 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
         >>> print(suggestions)
         ['I want to check my account balance', 'I want to give Minh 40k for bún đậu mắm tôm', 'I want to create a chat group with Hung and Cuong', 'I want to ask for financial advice']
         >>> response, suggestions = ask_assistant(messages=[
-        ...     {"user": "Minh", "message": "I want to ask for financial advice"},
+        ...     {"user": "Minh", "content": "I want to ask for financial advice"},
         ... ])
         >>> print(response)
         Sure, I can help you with that. What do you want to ask?
         >>> print(suggestions)
         ['Help me create a monthly budget plan', 'Help me calculate my target saving plan', 'Help me detect if a loan is usury or not', 'Help me invest my money', 'Help me pay off my debt']
         >>> response, suggestions = ask_assistant(messages=[
-        ...     {"user": "Minh", "message": "I want to ask for financial advice"},
-        ...     {"user": "assistant", "message": "Sure, I can help you with that. What do you want to ask?"},
-        ...     {"user": "Minh", "message": "Help me create a monthly budget plan"},
+        ...     {"user": "Minh", "content": "I want to ask for financial advice"},
+        ...     {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
+        ...     {"user": "Minh", "content": "Help me create a monthly budget plan"},
         ... ])
         >>> print(response)
     """
     if len(messages) == 0:
         return INTRODUCTION, []
 
-    message = messages[-1]["message"]
+    message = messages[-1]["content"]
     if money_management.is_money_management_question(message):
         return money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(message):
@@ -84,7 +84,7 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     Suggest general advice
     """
     messages = messages[-12:]
-    conversation = "\n".join([f"{'User' if message['user'].lower() != 'assistant' else 'Assistant'}: {message['message']}" for message in messages])
+    conversation = "\n".join([f"{'User' if message['user'].lower() != 'assistant' else 'Assistant'}: {message['content']}" for message in messages])
     model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
     print("Model input: \n", model_input)
     output = generate_conversation_chatgpt_api(model_input)
@@ -95,9 +95,9 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
 if __name__ == "__main__":
     setup_logging_display_only()
     response, suggestions = general_suggestion(messages=[
-        {"user": "Minh", "message": "I want to ask for financial advice"},
-        {"user": "assistant", "message": "Sure, I can help you with that. What do you want to ask?"},
-        {"user": "Minh", "message": "Help me create a monthly budget plan"},
+        {"user": "Minh", "content": "I want to ask for financial advice"},
+        {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
+        {"user": "Minh", "content": "Help me create a monthly budget plan"},
     ])
     print(f"Response: {response}")
         

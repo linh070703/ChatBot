@@ -27,7 +27,7 @@ def get_action_params(
 
     Example:
         >>> messages = [
-        ...     {"user": "Minh", "message": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
+        ...     {"user": "Minh", "content": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
         ... ]
         >>> get_action_params(messages, action="TRANSFER")
         {
@@ -36,7 +36,7 @@ def get_action_params(
             "msg": "bún đậu",
         }
         >>> messages = [    
-        ...     {"user": "Minh", "message": "Chuyển mỗi người 100k."},
+        ...     {"user": "Minh", "content": "Chuyển mỗi người 100k."},
         ... ]
         >>> get_action_params(messages, action="TRANSFER_TO_EACH_USERS")
         {
@@ -44,7 +44,7 @@ def get_action_params(
             "msg": None,
         }
         >>> messages = [
-        ...     {"user": "Minh", "message": "Tao muốn tạo nhóm chat với Nam và Lan."},
+        ...     {"user": "Minh", "content": "Tao muốn tạo nhóm chat với Nam và Lan."},
         ... ]
         >>> get_action_params(messages, action="CREATE_CHAT_GROUP")
         {
@@ -57,7 +57,7 @@ def get_action_params(
     """
     assert action in ["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"], f"Invalid action: {action}"
     messages = messages[-2:]
-    conversation = "\n".join([f"{message['user']}: {message['message']}" for message in messages])
+    conversation = "\n".join([f"{message['user']}: {message['content']}" for message in messages])
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s request system action: {action}"
     print("Model input: \n", model_input)
@@ -95,14 +95,14 @@ def get_action_params(
 if __name__ == "__main__":
     setup_logging_display_only()
     out = get_action_params(messages=[
-        {"user": "Minh", "message": "Hello, I want to check my account balance"},
-        {"user": "Lan", "message": "Ready for a party?"},
-        {"user": "Minh", "message": "Yes, I am ready."},
-        {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung."},
-        {"user": "Cường", "message": "Chuyển quà sinh nhật mỗi cháu 400k"},
-        {"user": "Minh", "message": "Chuyển Alisa ba chục nghìn tiền bún đậu"},
-        {"user": "Minh", "message": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'."},
-        {"user": "Hung", "message": "I want to create a chat group for Minh, me, Lan, and Cường named 'Party| this sunday'."},
+        {"user": "Minh", "content": "Hello, I want to check my account balance"},
+        {"user": "Lan", "content": "Ready for a party?"},
+        {"user": "Minh", "content": "Yes, I am ready."},
+        {"user": "Minh", "content": "I want to transfer 3289723 VND to Hung."},
+        {"user": "Cường", "content": "Chuyển quà sinh nhật mỗi cháu 400k"},
+        {"user": "Minh", "content": "Chuyển Alisa ba chục nghìn tiền bún đậu"},
+        {"user": "Minh", "content": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'."},
+        {"user": "Hung", "content": "I want to create a chat group for Minh, me, Lan, and Cường named 'Party| this sunday'."},
     ], action="CREATE_CHAT_GROUP")
     print("Output: ", out)
         

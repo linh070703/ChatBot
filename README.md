@@ -13,10 +13,6 @@ python3 app.py
 
 ```
 curl -X POST -H "Content-Type: application/json" \
-    -d '{ \
-        "message": [ \
-            {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."} \
-        ] \
-    }' \
-    https://bhdl.jsclub.me/mock/chat
+    -d '{ "message": [ {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."} ] }' \
+    http://ai-bhdl.jsclub.me:5001/api/chat
 ```

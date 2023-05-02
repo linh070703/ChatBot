@@ -25,14 +25,14 @@ def dectect_user_intention(
     
     Example:
         >>> messages = [
-        ...     {"user": "Minh", "message": "Hello, I want to check my account balance"},
+        ...     {"user": "Minh", "content": "Hello, I want to check my account balance"},
         ... ]
         >>> dectect_user_intention(messages)
         "CHECK_BALANCE"
     """
     assert len(messages) > 0, "Conversation history must not be empty."
     messages = messages[-5:]
-    conversation = "\n".join([f"{message['user']}: {message['message']}" for message in messages])
+    conversation = "\n".join([f"{message['user']}: {message['content']}" for message in messages])
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s intention: "
     logging.info(f"Model input: \n{model_input}")
@@ -45,7 +45,7 @@ def dectect_user_intention(
 if __name__ == "__main__":
     setup_logging_display_only()
     out = dectect_user_intention(messages=[
-        {"user": "Cường", "message": "Tôi muốn được tư vấn về việc trả nợ."},
+        {"user": "Cường", "content": "Tôi muốn được tư vấn về việc trả nợ."},
     ])
     logging.info(f"Output: {out}")
         

@@ -73,28 +73,28 @@ def chat():
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
-    ...         {"user": "Minh", "message": "Tao muốn tạo nhóm chat với Nam và Lan."},
+    ...         {"user": "Minh", "content": "Tao muốn tạo nhóm chat với Nam và Lan."},
     ...     ]
     ... }).json()
     {'action': {'command': 'CREATE_CHAT_GROUP', 'params': {'members': ['Nam', 'Lan']}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
-    ...         {"user": "Minh", "message": "Tài khoản của tao còn bao nhiêu tiền?"},
+    ...         {"user": "Minh", "content": "Tài khoản của tao còn bao nhiêu tiền?"},
     ...     ]
     ... }).json()
     {'action': {'command': 'CHECK_BALANCE', 'params': {'user': 'Minh'}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
-    ...         {"user": "Minh", "message": "Ủa mày thích ăn đấm không?"},
+    ...         {"user": "Minh", "content": "Ủa mày thích ăn đấm không?"},
     ...     ]
     ... }).json()
     {'action': {'command': 'NO_ACTION', 'params': {}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
-    ...         {"user": "Minh", "message": "Tôi muốn được tư vấn về việc lên kế hoạch quản lý tài chính."},
+    ...         {"user": "Minh", "content": "Tôi muốn được tư vấn về việc lên kế hoạch quản lý tài chính."},
     ...     ]
     ... }).json()
     {
@@ -108,7 +108,7 @@ def chat():
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
-    ...         {"user": "Minh", "message": "I want to ask for financial advice"},
+    ...         {"user": "Minh", "content": "I want to ask for financial advice"},
     ...     ]
     ... }).json()
     {
@@ -127,8 +127,10 @@ def chat():
     userInfo = request.json.get('userInfo', {"status": None})
     for message in messages:
         assert 'role' not in message, 'Role is not allowed. Deprecated.'
+        assert 'message' not in message, 'Message is not allowed. Deprecated.'
         assert 'user' in message, 'User is not provided.'
-        assert 'message' in message, 'Message is not provided.'
+        assert 'content' in message, 'content is not provided.'
+
     
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'})
