@@ -2,13 +2,27 @@ import requests
 import json
 import os
 import openai
-from functools import lru_cache
+from functools import lru_cache, wraps
 from itertools import cycle
 
 MODEL_API_URL = "model_api:80"
 api_keys = os.getenv("OPENAI_API_KEYS").split(',')
 print(f"api_keys: {api_keys}")
 api_keys_cycle = cycle(api_keys)
+
+def handle_api_errors(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            result = func(*args, **kwargs)
+            return result
+        except openai.error.APIError as e:
+            if e.status == 429:
+                print("Error: ", e)
+                print("API usage limit reached. Switching to the next API key.")
+                return wrapper(*args, **kwargs)
+            raise e
+    return wrapper
 
 def generate(inputs: str, temperature: float) -> str:
     return requests.post(
@@ -36,6 +50,7 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
     return data['text']
 
 @lru_cache(maxsize=1024)
+@handle_api_errors
 def generate_conversation_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -51,6 +66,7 @@ def generate_conversation_chatgpt_api(inputs: str) -> str:
     return response
 
 @lru_cache(maxsize=1024)
+@handle_api_errors
 def generate_action_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -66,6 +82,7 @@ def generate_action_chatgpt_api(inputs: str) -> str:
     return response
 
 @lru_cache(maxsize=1024)
+@handle_api_errors
 def generate_action_params_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
