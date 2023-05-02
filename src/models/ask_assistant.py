@@ -66,6 +66,8 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
         ... ])
         >>> print(response)
     """
+    if len(messages) == 0:
+        return INTRODUCTION, []
 
     message = messages[-1]["message"]
     if money_management.is_money_management_question(message):
