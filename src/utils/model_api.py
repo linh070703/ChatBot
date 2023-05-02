@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import openai
+from functools import lru_cache
 
 MODEL_API_URL = "model_api:80"
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -33,6 +34,7 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
     print(f'generate_torchserve: {data}')
     return data['text']
 
+@lru_cache(maxsize=1024)
 def generate_conversation_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -46,6 +48,7 @@ def generate_conversation_chatgpt_api(inputs: str) -> str:
     )['choices'][0]['text']
     return response
 
+@lru_cache(maxsize=1024)
 def generate_action_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
@@ -59,6 +62,7 @@ def generate_action_chatgpt_api(inputs: str) -> str:
     )['choices'][0]['text']
     return response
 
+@lru_cache(maxsize=1024)
 def generate_action_params_chatgpt_api(inputs: str) -> str:
     response = openai.Completion.create(
         model="text-davinci-003",
