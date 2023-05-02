@@ -3,11 +3,12 @@ import json
 import os
 import openai
 from functools import lru_cache
+from itertools import cycle
 
 MODEL_API_URL = "model_api:80"
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-print(f"openai.api_key: {openai.api_key}")
+api_keys = os.getenv("OPENAI_API_KEYS").split(',')
+print(f"api_keys: {api_keys}")
+api_keys_cycle = cycle(api_keys)
 
 def generate(inputs: str, temperature: float) -> str:
     return requests.post(
@@ -45,6 +46,7 @@ def generate_conversation_chatgpt_api(inputs: str) -> str:
         frequency_penalty=0.0,
         presence_penalty=0.0,
         stop=["User:"],
+        api_key=next(api_keys_cycle),
     )['choices'][0]['text']
     return response
 
@@ -59,6 +61,7 @@ def generate_action_chatgpt_api(inputs: str) -> str:
         frequency_penalty=0.0,
         presence_penalty=0.0,
         stop=[r"]"],
+        api_key=next(api_keys_cycle),
     )['choices'][0]['text']
     return response
 
@@ -73,6 +76,7 @@ def generate_action_params_chatgpt_api(inputs: str) -> str:
         frequency_penalty=0.0,
         presence_penalty=0.0,
         stop=[r"]"],
+        api_key=next(api_keys_cycle),
     )['choices'][0]['text']
     return response
     
