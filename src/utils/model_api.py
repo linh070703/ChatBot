@@ -5,6 +5,8 @@ import openai
 from functools import lru_cache, wraps
 from itertools import cycle
 from time import sleep
+from dotenv import load_dotenv
+load_dotenv()
 
 MODEL_API_URL = "model_api:80"
 api_keys = os.getenv("OPENAI_API_KEYS").split(',')
