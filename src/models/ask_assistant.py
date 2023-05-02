@@ -8,8 +8,11 @@ from utils.model_api import generate_conversation_chatgpt_api
 from utils.logger import setup_logging_display_only, logging
 from expert_system import loan, money_management, economical
 
+VIETNAMESE_MODE = True
+
 PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive response along with useful general detailed advices for user. Answer in language as same as User's question. English and Vietnamese are supported. Answers should be no more than 250 words and using markdown syntax when needed."""
 INTRODUCTION = """Hi, I am your personal finance assistant. I can help you with the following tasks:
+
 - Check your account balance
 - Transfer money to another account
 - Create a chat group
@@ -19,8 +22,23 @@ INTRODUCTION = """Hi, I am your personal finance assistant. I can help you with 
     + Detect if a loan is usury or not.
     + Advice on how to invest your money.
     + Advice on how to pay off your debt.
-    And many more...
+    + And many more...
+
 How can I help you today?
+""" if not VIETNAMESE_MODE else """Xin chào, tôi là trợ lý tài chính cá nhân của bạn. Tôi có thể giúp bạn với các công việc sau:
+
+- Kiểm tra số dư tài khoản
+- Chuyển tiền đến tài khoản khác
+- Tạo nhóm chat với bạn bè
+- Yêu cầu tư vấn tài chính, như:
+    + Tạo kế hoạch ngân sách hàng tháng của bạn.
+    + Tính toán kế hoạch tiết kiệm mục tiêu của bạn.
+    + Phát hiện xem một khoản vay có phí lãi nặng hay không.
+    + Tư vấn về cách đầu tư tiền của bạn.
+    + Tư vấn về cách thanh toán nợ của bạn.
+    + Và nhiều hơn nữa...
+
+Tôi có thể giúp gì cho bạn hôm nay?
 """
 
 
@@ -67,7 +85,12 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
         >>> print(response)
     """
     if len(messages) == 0:
-        return INTRODUCTION, []
+        return INTRODUCTION, [
+            "Tôi muốn kiểm tra số dư tài khoản",
+            "Tôi muốn chuyển 30k cho Minh",
+            "Tôi muốn tạo nhóm chat với Hùng và Cường",
+            "Tôi muốn được tư vấn tài chính"
+        ]
 
     message = messages[-1]["content"]
     if money_management.is_money_management_question(message):
