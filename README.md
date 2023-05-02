@@ -13,6 +13,6 @@ python3 app.py
 
 ```
 curl -X POST -H "Content-Type: application/json" \
-    -d '{ "message": [ {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."} ] }' \
-    http://ai-bhdl.jsclub.me:5001/api/chat
+    -d '{ "messages": [ {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."} ] }' \
+    http://34.87.53.68:5001/api/chat
 ```
