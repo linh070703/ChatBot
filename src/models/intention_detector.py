@@ -32,12 +32,12 @@ def dectect_user_intention(
     """
     assert len(messages) > 0, "Conversation history must not be empty."
     messages = messages[-5:]
-    conversation = "\n".join([f"{message['user']}: {message['content']}" for message in messages])
+    conversation = "\n".join([f"{' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s intention: "
     logging.info(f"Model input: \n{model_input}")
     output = generate_action_chatgpt_api(model_input)
-    intent = output.strip()
+    intent = " ".join(output.split()).strip()
     assert intent in ["CHECK_BALANCE", "TRANSFER", "TRANSFER_TO_EACH_USERS", "CREATE_CHAT_GROUP", "ASK_ASSISTANT", "NO_SYSTEM_ACTION"], f"Invalid intent: {intent}"
     return intent
 
