@@ -35,6 +35,16 @@ setup_logging('app.log')
 def health():
     return jsonify({'status': 'ok'})
 
+@app.route('/iframe/chart/<type>', methods=['GET'])
+def iframe(type):
+    logging.info(f"Received request params: {request.args}")
+    assert type in ['compare', 'earnings'], "Invalid type param"
+    assert request.args.get('code') is not None, "Missing code param"
+    period = request.args.get('period', '1-year')
+    codes = request.args.get('code').split(',')
+    ...
+    return render_template('iframe.html')
+
 @app.route('/api/chat', methods=['POST'])
 def chat():
     """
@@ -121,6 +131,50 @@ def chat():
         },
         'message': {'role': 'assistant', 'content': 'Sure, I can help you with that. What do you want to ask?'},
         'suggestions': ['Help me create a monthly budget plan', 'Help me calculate my target saving plan', 'Help me detect if a loan is usury or not', 'Help me invest my money', 'Help me pay off my debt']
+    }
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "content": "Compare Bank of America, Coca Cola, and Apple"},
+    ...     ]
+    ... }).json()
+    {
+        'action': {
+            'command': 'ASK_ASSISTANT',
+            'params': {
+                'chart': {
+                    'type': 'compare',
+                    'code': ['BAC', 'KO', 'AAPL'],
+                    'name': ['Bank of America', 'Coca Cola', 'Apple'],
+                    'period': '1-year',
+                    'iframeLink': '/iframe/chart/compare?code=BAC,KO,AAPL&period=1-year',
+                },
+            },
+        },
+        'message': {'role': 'assistant', 'content': 'I have done the research for you and compared these investments across Volatility and Returns over a 1-year period.'},
+        'suggestions': []
+    }
+
+    >>> requests.post('http://localhost:5000/api/chat', json={
+    ...     "messages": [
+    ...         {"user": "Minh", "content": "I own Amazon. What is their earning per share?"},
+    ...     ]
+    ... }).json()
+    {
+        'action': {
+            'command': 'ASK_ASSISTANT',
+            'params': {
+                'chart': {
+                    'type': 'earnings',
+                    'code': ['AMZN'],
+                    'name': ['Amazon'],
+                    'period': '1-year',
+                    'iframeLink': '/iframe/chart/earnings?code=AMZN&period=1-year',
+                },
+            },
+        },
+        'message': {'role': 'assistant', 'content': 'Here is a chart that compares the estimated vs the reported earnings per share:'},
+        'suggestions': []
     }
     """
     logging.info(f"Received request: {request.json}")
