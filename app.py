@@ -19,6 +19,7 @@ from src.utils.logger import setup_logging, pprint, print
 from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
+from src.models.response_message import get_response_message
 import re
 
 app = Flask(__name__)
@@ -203,7 +204,10 @@ def chat():
                 'action': {
                     'command': 'TRANSFER',
                     'params': payload
-                }
+                },
+                'message': {
+                    'role': 'assistant', 'content': get_response_message(payload, action='TRANSFER')
+                },
             }
         else:
             res = {
@@ -223,7 +227,10 @@ def chat():
                 'action': {
                     'command': 'TRANSFER_TO_EACH_USERS',
                     'params': payload
-                }
+                },
+                'message': {
+                    'role': 'assistant', 'content': get_response_message(payload, action='TRANSFER_TO_EACH_USERS')
+                },
             }
         else:
             res = {
@@ -243,7 +250,10 @@ def chat():
                 'action': {
                     'command': 'CREATE_CHAT_GROUP',
                     'params': payload
-                }
+                },
+                'message': {
+                    'role': 'assistant', 'content': get_response_message(payload, action='CREATE_CHAT_GROUP')
+                },
             }
         else:
             res = {
