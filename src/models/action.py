@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import List, Literal, Dict, Union, Any, Tuple
-from utils.model_api import generate_action_params_chatgpt_api, generate_general_call_chatgpt_api
+from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, pprint, print
 import re
 
