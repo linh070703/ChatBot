@@ -63,7 +63,7 @@ System will first output "REASONING: <thinking about user's intention, between 3
 [ ] receiver (need to be real username)
 [ ] amount (need to be number)
 [ ] message (Is the purpose of the transaction specified?)
-Then, if any of the param is missing, e.g. user did not explicitly mention receiver's username, then system will follows with "RESULT: NOT_ENOUGH_PARAMS". "ENOUGH_PARAMS" otherwise.
+Then, if any of the above param is missing, e.g. user did not explicitly mention receiver's username or message, then system will follows with "RESULT: NOT_ENOUGH_PARAMS". "ENOUGH_PARAMS" otherwise.
 If RESULT is NOT_ENOUGH_PARAMS, then system will output a response "RESPONSE: ..." asking user to provide more information. Note that system should response in the same language as User's question.
 If RESULT is ENOUGH_PARAMS, then system will output the system action "ACTION: TRANSFER[...]"
 -- Conversation --
@@ -89,7 +89,9 @@ REASONING:"""
         msg = action_params.split("[")[1].split("|")[1:]
         msg = "|".join(msg).split("]")[0].strip()
         if msg.lower() == "null" or msg.lower() == "none" or msg == "":
-            raise Exception("Transaction message is empty")
+            # raise Exception("Transaction message is empty")
+            logging.warning("Transaction message is empty (rare case), using default message")
+            return "Bạn cần nhập thêm nội dung chuyển khoản."
         else:
             params["msg"] = msg
 
