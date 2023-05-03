@@ -106,11 +106,12 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
     Suggest general advice
     """
-    messages = messages[-12:]
-    conversation = "\n".join([f"{'User' if message['user'].lower() != 'assistant' else 'Assistant'}: {message['content']}" for message in messages])
+    messages = messages[-4:]
+    conversation = "\n".join([f"{' '.join('User' if message['user'].lower() != 'assistant' else 'Assistant'.split())}: {' '.join(message['content'].split())}" for message in messages])
     model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
     print("Model input: \n", model_input)
     output = generate_conversation_chatgpt_api(model_input)
+    output = " ".join(output.split())
     print("Model output: \n", output)
     return output, []
     
