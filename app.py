@@ -174,10 +174,6 @@ def chat():
         
         print(f"Bot_response: {bot_response}")
 
-        bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
-
-        print(f"Answer: {bot_response}")
-
         res = {
             'message': {
                 'role': 'assistant', 'content': bot_response
