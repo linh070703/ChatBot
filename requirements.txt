@@ -6,4 +6,4 @@ waitress
 requests
 openai
 python-dotenv
-langdetect
+lingua-language-detector

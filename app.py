@@ -22,7 +22,7 @@ from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
 from src.models.response_message import get_response_message
-from src.models.translator import convert_answer_language_to_same_as_question
+from src.models.translator import convert_answer_language_to_same_as_question, answer_I_dont_know_multilingual
 
 from src.charts.compare import get_compare_chart_data
 from src.charts.earnings import get_earnings_chart_data
@@ -239,6 +239,10 @@ def chat():
             'action': {
                 'command': 'NO_ACTION',
                 'params': {}
+            },
+            'message': {
+                'role': 'assistant',
+                'content': answer_I_dont_know_multilingual(messages)
             }
         })
     

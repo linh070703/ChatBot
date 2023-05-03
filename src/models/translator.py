@@ -1,8 +1,17 @@
 from typing import List, Dict, Any, Union, Literal, Tuple, Optional
-from langdetect import detect
+from lingua import Language, LanguageDetectorBuilder
 from functools import lru_cache
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import logging, print
+
+# detector = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
+detector = LanguageDetectorBuilder.from_languages(
+    Language.ENGLISH, Language.FRENCH, Language.GERMAN, Language.SPANISH,
+    Language.VIETNAMESE, Language.CHINESE, Language.JAPANESE, Language.KOREAN,
+    Language.INDONESIAN, Language.THAI, Language.HINDI, Language.ARABIC,
+    Language.RUSSIAN, Language.PORTUGUESE, Language.ITALIAN, Language.TURKISH,
+    Language.DUTCH, Language.POLISH, Language.SWEDISH, Language.DANISH,
+).with_preloaded_language_models().build()
 
 @lru_cache(maxsize=256)
 def translate(text: str, src="vi", dest="en") -> str:
@@ -43,13 +52,39 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
     Returns:
         str: answer
     """
-    question_lang = detect(question)
-    answer_lang = detect(answer)
+    question_lang = detector.detect_language_of(question).name
+    answer_lang = detector.detect_language_of(answer).name
     if question_lang == answer_lang:
-        logging.info(f"Question and answer language are the same. No need to translate.")
+        logging.info(f"Question and answer language are the same ({question_lang}). No need to translate.")
         return answer
     else:
         logging.info(f"Question language: {question_lang}")
         logging.info(f"Answer language: {answer_lang}")
         logging.info(f"Translating answer to {question_lang}...")
         return translate(answer, src=answer_lang, dest=question_lang)
+    
+def answer_I_dont_know_multilingual(messages: List[Dict[str, str]]):
+    """
+    Answer "I don't know" in the same language as the question.
+    
+    Args:
+        messages (List[Dict[str, str]]): list of messages
+        
+    Returns:
+        str: answer
+    """
+    messages = [m for m in messages if m['user'].lower() != 'assistant'][-12:]
+    raw_conversation = "\n".join([f"{m['user'].strip()}: {' '.join(m['content'].split())}" for m in messages])
+    user_language = detector.detect_language_of(raw_conversation).name
+    logging.info(f"User language: {user_language}")
+    if user_language == Language.ENGLISH.name:
+        return "I'm sorry, but I do not understand what you mean. Can you rephrase your question?"
+    elif user_language == Language.VIETNAMESE.name:
+        return "Xin lỗi, tôi không hiểu ý bạn. Bạn có thể nói rõ hơn được không?"
+    elif user_language == Language.CHINESE.name:
+        return "对不起，我不明白你的意思。你能再说一遍吗？"
+    elif user_language == Language.JAPANESE.name:
+        return "すみませんが、私はあなたの意味がわかりません。"
+    else:
+        logging.info(f"Translating answer to {user_language}...")
+        return translate("I don't understand.", src=Language.ENGLISH.name, dest=user_language)
