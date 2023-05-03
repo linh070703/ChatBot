@@ -55,7 +55,7 @@ def get_action_params(
     messages = messages[-5:]
     params = {}
     if action == "TRANSFER":
-        conversation = "\n".join([f"{message['user'].strip()}: {message['content'].strip()}" for message in messages])
+        conversation = "\n".join([f"{' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
         last_user = messages[-1]['user']
         model_input = f"""This is a financial assistant system that can TRANSFER money when user request. English and Vietnamese are supported. System's action syntax is: TRANSFER[<receiver>,<amount>|<message>]. Note that money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000).
 System will first output "REASONING: <thinking about user's intention, between 3 to 5 sentences, and analyze each param 'receiver', 'amount', and 'message'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
@@ -93,7 +93,7 @@ REASONING:"""
             params["msg"] = msg
 
     elif action == "CREATE_CHAT_GROUP":
-        conversation = "\n".join([f"{message['user'].strip()}: {message['content'].strip()}" for message in messages])
+        conversation = "\n".join([f"{' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
         last_user = messages[-1]['user']
         model_input = f"""This is an assistant system that can CREATE_CHAT_GROUP when user request. English and Vietnamese are supported. System's action syntax is: CREATE_CHAT_GROUP[<user_comma_separated>|<group_name (nullable)>]. System will first output "REASONING: <thinking about user's intention, between 30-50 words, and analyze each param 'user_comma_separated' and 'group_name'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
 [ ] user_comma_separated (need to be a list of username with comma separated)
@@ -128,7 +128,7 @@ REASONING:"""
             params["group_name"] = group_name
 
     elif action == "TRANSFER_TO_EACH_USERS":
-        conversation = "\n".join([f"{message['user'].strip()}: {message['content'].strip()}" for message in messages])
+        conversation = "\n".join([f"{' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
         last_user = messages[-1]['user']
         model_input = f"""This is a financial assistant system that can TRANSFER_TO_EACH_USERS money when user request. English and Vietnamese are supported. System's action syntax is: TRANSFER_TO_EACH_USERS[<amount>|<message>]. Note that money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000).
 System will first output "REASONING: <thinking about user's intention, between 30-50 words, and analyze each param 'amount' and 'message'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
