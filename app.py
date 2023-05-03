@@ -16,8 +16,9 @@ import json
 import sys
 import requests
 import logging
+from typing import List, Dict, Union, Any, Tuple
 from src.utils.logger import setup_logging, pprint, print
-from src.models.action import get_action_params
+from src.models.action import get_action_params_with_validator
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
 import re
@@ -194,29 +195,65 @@ def chat():
             }
         }
     elif intention == 'TRANSFER':
-        action_params = get_action_params(messages, action='TRANSFER')
-        res = {
-            'action': {
-                'command': 'TRANSFER',
-                'params': action_params
+        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='TRANSFER')
+        if is_enough_params:
+            res = {
+                'action': {
+                    'command': 'TRANSFER',
+                    'params': payload
+                }
             }
-        }
+        else:
+            res = {
+                'action': {
+                    'command': 'ASK_ASSISTANT',
+                    'params': {}
+                },
+                'message': {
+                    'role': 'assistant', 'content': payload
+                },
+                'suggestions': []
+            }
     elif intention == 'TRANSFER_TO_EACH_USERS':
-        action_params = get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
-        res = {
-            'action': {
-                'command': 'TRANSFER_TO_EACH_USERS',
-                'params': action_params
+        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='TRANSFER_TO_EACH_USERS')
+        if is_enough_params:
+            res = {
+                'action': {
+                    'command': 'TRANSFER_TO_EACH_USERS',
+                    'params': payload
+                }
             }
-        }
+        else:
+            res = {
+                'action': {
+                    'command': 'ASK_ASSISTANT',
+                    'params': {}
+                },
+                'message': {
+                    'role': 'assistant', 'content': payload
+                },
+                'suggestions': []
+            }
     elif intention == 'CREATE_CHAT_GROUP':
-        action_params = get_action_params(messages, action='CREATE_CHAT_GROUP')
-        res = {
-            'action': {
-                'command': 'CREATE_CHAT_GROUP',
-                'params': action_params
+        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='CREATE_CHAT_GROUP')
+        if is_enough_params:
+            res = {
+                'action': {
+                    'command': 'CREATE_CHAT_GROUP',
+                    'params': payload
+                }
             }
-        }
+        else:
+            res = {
+                'action': {
+                    'command': 'ASK_ASSISTANT',
+                    'params': {}
+                },
+                'message': {
+                    'role': 'assistant', 'content': payload
+                },
+                'suggestions': []
+            }
     else:
         raise Exception(f"Unknown intention: {intention}")
     

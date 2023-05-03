@@ -11,6 +11,57 @@ Note that when TRANSFER, money abbreviation should be expanded without comma or 
 # Minh: I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'.
 # Minh's request system action: TRANSFER[Hung,3289723|Chúc mừng sinh nhật nhé, nhớ học giỏi]
 
+def get_action_params_with_validator(
+        messages: List[Dict[str, str]],
+        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
+    ) -> Tuple[bool, Union[Dict[str, str], str]]:
+    """
+    Get action parameters from conversation history and user's intention.
+
+    Args:
+        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "content". "user" is the name of user who sent the message. "content" is the message sent by the user.
+        action (Literal["TRANSFER", "CREATE_CHAT_GROUP"]): User's intention, which is one of "TRANSFER" or "CREATE_CHAT_GROUP".
+    
+    Returns:
+        is_enough_params (bool): Whether the action parameters are enough or not. If enough, then Action parameters are returned. Otherwise, Normal message is returned.
+        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "users".
+        request_message (str): Normal message. This message is returned when the action parameters are not enough.
+
+    Example:
+        >>> messages = [
+        ...     {"user": "Minh", "content": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
+        ... ]
+        >>> get_action_params_with_validator(messages, action="TRANSFER")
+        True, {
+            "receiver": "Nam",
+            "amount": "6966000",
+            "msg": "bún đậu",
+        }
+        >>> messages = [    
+        ...     {"user": "Minh", "content": "Chuyển mỗi người 100k."},
+        ... ]
+        >>> get_action_params_with_validator(messages, action="TRANSFER_TO_EACH_USERS")
+        False, Nội dung chuyển khoản là gì bạn nhỉ?
+        >>> messages = [
+        ...     {"user": "Minh", "content": "Tao muốn tạo nhóm chat với Nam và Lan."},
+        ... ]
+        >>> get_action_params_with_validator(messages, action="CREATE_CHAT_GROUP")
+        True, {
+            "users": [
+                "Nam",
+                "Lan",
+            ],
+            "group_name": None, # group name can be None
+        }
+    """
+    params, model_raw_output = get_action_params(messages, action)
+    is_enough_params, request_message = validate_param(messages, action, model_raw_output, params)
+    if is_enough_params:
+        return is_enough_params, params
+    else:
+        return is_enough_params, request_message
+
+
 def get_action_params(
         messages: List[Dict[str, str]],
         action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
@@ -89,7 +140,27 @@ def get_action_params(
             params["msg"] = None
         else:
             params["msg"] = msg
-    return params
+    return params, output + "]"
+
+def validate_param(
+        messages: List[Dict[str, str]],
+        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
+        model_raw_output: str,
+        params: Dict[str, str],
+    ) -> Dict[str, str]:
+    """
+    Get action parameters from conversation history and user's intention.
+
+    Args:
+        messages (List[Dict[str, str]]): List of messages in conversation history. Each message is a dictionary with 2 keys: "user" and "content". "user" is the name of user who sent the message. "content" is the message sent by the user.
+        action (Literal["TRANSFER", "CREATE_CHAT_GROUP"]): User's intention, which is one of "TRANSFER" or "CREATE_CHAT_GROUP".
+    
+    Returns:
+        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "users".
+
+    Example:
+    """
+    ...
 
 
 if __name__ == "__main__":
