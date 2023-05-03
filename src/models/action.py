@@ -119,7 +119,9 @@ REASONING:"""
 
         assert result == "OK", f"Invalid result: {result}"
         action_params = re.search(r"ACTION: (.*)", output).group(1) 
-        params["members"] = action_params.split("|")[0].split("[")[1].split(",")
+        members = action_params.split("|")[0].split("[")[1].split("]")[0].split(",")
+        members = [" ".join(member.split()) for member in members]
+        params["members"] = members
         group_name = action_params.split("[")[1].split("|")[1:]
         group_name = "|".join(group_name).split("]")[0].strip()
         if group_name.lower() == "null" or group_name.lower() == "none" or group_name == "":
