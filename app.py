@@ -20,6 +20,7 @@ from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
 from src.models.response_message import get_response_message
+from src.models.translator import convert_answer_language_to_same_as_question
 import re
 
 app = Flask(__name__)
@@ -173,6 +174,8 @@ def chat():
         bot_response, suggestions = ask_assistant(messages)
         
         print(f"Bot_response: {bot_response}")
+
+        bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
 
         res = {
             'message': {
