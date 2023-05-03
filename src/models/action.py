@@ -77,7 +77,7 @@ REASONING:"""
         )
         print("Model output: \n", output)
 
-        result = re.search(r"RESULT: (.*)", output)
+        result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
             return output.split("RESPONSE: ")[1].strip()
 
@@ -113,7 +113,7 @@ REASONING:"""
         )
         print("Model output: \n", output)
 
-        result = re.search(r"RESULT: (.*)", output)
+        result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NO_USERS":   
             return output.split("RESPONSE: ")[1].strip()
 
@@ -149,7 +149,7 @@ REASONING:"""
         )
         print("Model output: \n", output)
 
-        result = re.search(r"RESULT: (.*)", output)
+        result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
             return output.split("RESPONSE: ")[1].strip()
 
