@@ -24,7 +24,7 @@ def get_action_params_with_validator(
     
     Returns:
         is_enough_params (bool): Whether the action parameters are enough or not. If enough, then Action parameters are returned. Otherwise, Normal message is returned.
-        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "users".
+        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "members".
         request_message (str): Normal message. This message is returned when the action parameters are not enough.
 
     Example:
@@ -159,9 +159,77 @@ def validate_param(
         Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "members".
 
     Example:
+        >>> params, model_raw_output = get_action_params(messages=[
+        ...     {"user": "Minh", "content": "Tao muốn chuyển khoản cho Nam 6966 k VND tiền bún đậu"},
+        ... ], action="TRANSFER")
+        >>> print(params, model_raw_output)
+        {
+            "receiver": "Nam",
+            "amount": "6966000",
+            "msg": "bún đậu",
+        }, '[Nam,6966000|bún đậu]'
+        >>> is_enough_params, request_message = validate_param(messages, model_raw_output, action="TRANSFER", params=params)
+        >>> print(is_enough_params, request_message)
+        True, None
+
+        >>> params, model_raw_output = get_action_params(messages=[
+        ...     {"user": "Minh", "content": "Chuyển mỗi người 100k."},
+        ... ], action="TRANSFER_TO_EACH_USERS")
+        >>> print(params, model_raw_output)
+        {
+            "amount_each": "100000",
+            "msg": None,
+        }, '[100000|null]'
+        >>> is_enough_params, request_message = validate_param(messages, model_raw_output, action="TRANSFER_TO_EACH_USERS", params=params)
+        >>> print(is_enough_params, request_message)
+        False, "Bạn muốn nội dung chuyển khoản là gì?"
+
+        >>> params, model_raw_output = get_action_params(messages=[
+        ...     {"user": "Minh", "content": "Tao muốn tạo nhóm chat với Nam và Lan."},
+        ... ], action="CREATE_CHAT_GROUP")
+        >>> print(params, model_raw_output)
+        {
+            "members": [
+                "Nam",
+                "Lan",
+            ],
+            "group_name": None,
+        }, '[Nam,Lan|null]'
+        >>> is_enough_params, request_message = validate_param(messages, model_raw_output, action="CREATE_CHAT_GROUP", params=params)
+        >>> print(is_enough_params, request_message)
+        True, None # Because group name is not required
+    """
+    if action == "TRANSFER":
+        if "receiver" in params and (params["receiver"] is None or params["receiver"].strip() == ""):
+            return False, "Bạn muốn chuyển khoản cho ai?"
+        if "amount" in params and (params["amount"] is None or params["amount"].strip() == ""):
+            return False, "Bạn muốn chuyển khoản bao nhiêu?"
+        if "msg" in params and (params["msg"] is None or params["msg"].strip() == ""):
+            return False, "Bạn muốn nội dung chuyển khoản là gì?"
+    elif action == "CREATE_CHAT_GROUP":
+        if "members" in params and (params["members"] is None or len(params["members"]) == 0):
+            return False, "Bạn muốn tạo nhóm chat với ai?"
+        if "group_name" in params and (params["group_name"] is None or params["group_name"].strip() == ""):
+            # return False, "Bạn muốn đặt tên nhóm chat là gì?"
+            return True, None  # This is special case, because group name is not required
+    elif action == "TRANSFER_TO_EACH_USERS":
+        if "amount_each" in params and (params["amount_each"] is None or params["amount_each"].strip() == ""):
+            return False, "Bạn muốn chuyển khoản bao nhiêu?"
+        if "msg" in params and (params["msg"] is None or params["msg"].strip() == ""):
+            return False, "Bạn muốn nội dung chuyển khoản là gì?"
+
+    return validate_by_model(messages, model_raw_output, action, params)
+
+def validate_by_model(
+        messages: List[Dict[str, str]],
+        model_raw_output: str,
+        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
+        params: Dict[str, str],
+    ) -> Tuple[bool, Union[str, None]]:
+    """
+    Using AI model to validate action parameters that can not be validated by rules in validate_param()
     """
     ...
-
 
 if __name__ == "__main__":
     setup_logging_display_only()
