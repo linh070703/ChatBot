@@ -1,5 +1,6 @@
 from typing import Dict, List, Tuple, Union, Literal, Any
 from utils.logger import print
+import logging
 
 STAGE_MESSAGE = [
     "Okay, mình sẽ giúp bạn lên kế hoạch chi tiêu nhé. Thu nhập hiện tại mỗi tháng của bạn là bao nhiêu nhỉ?",

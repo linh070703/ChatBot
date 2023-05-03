@@ -6,12 +6,13 @@ from functools import lru_cache, wraps
 from itertools import cycle
 from typing import List, Dict, Any, Union, Literal, Tuple, Optional
 from time import sleep
+import logging
 from dotenv import load_dotenv
 load_dotenv()
 
 MODEL_API_URL = "model_api:80"
 api_keys = os.getenv("OPENAI_API_KEYS").split(',')
-print(f"api_keys: {api_keys}")
+logging.info(f"api_keys: {api_keys}")
 api_keys_cycle = cycle(api_keys)
 
 def handle_api_errors(max_retries=3):

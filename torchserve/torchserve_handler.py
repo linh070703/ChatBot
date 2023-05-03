@@ -145,8 +145,8 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             logger.info("Received text: '%s'", input_text)
             # preprocessing text for sequence_classification, token_classification or text_generation
             # question_context = ast.literal_eval(input_text)
-            print(f"input_text: {input_text}")
-            print(f"input_text type: {type(input_text)}")
+            logging.info(f"input_text: {input_text}")
+            logging.info(f"input_text type: {type(input_text)}")
             # question_context = json.loads(input_text)
             question_context = input_text
 
@@ -156,12 +156,12 @@ class TransformersSeqClassifierHandler(BaseHandler, ABC):
             # min_tokens = question_context.get("min_tokens", 30)
             # max_tokens = question_context.get("max_tokens", 4096)
 
-            print(f"Received request: {question_context}")
+            logging.info(f"Received request: {question_context}")
 
             text = prompt
 
             # Get chat answer
-            print(f"Input: {text}")
+            logging.info(f"Input: {text}")
 
             logger.info(f"Final input into model {text}")
             inputs = self.tokenizer(

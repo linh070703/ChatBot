@@ -5,7 +5,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_conversation_chatgpt_api
-from utils.logger import setup_logging_display_only, logging, print
+from utils.logger import setup_logging_display_only, print
+import logging
 from expert_system import loan, money_management, economical
 
 VIETNAMESE_MODE = True
@@ -109,10 +110,10 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     messages = messages[-4:]
     conversation = "\n".join([f"{' '.join(('User' if message['user'].lower() != 'assistant' else 'Assistant').split())}: {' '.join(message['content'].split())}" for message in messages])
     model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
-    print("Model input: \n", model_input)
+    logging.info(f"Model input: \n{model_input}")
     output = generate_conversation_chatgpt_api(model_input)
     output = " ".join(output.split())
-    print("Model output: \n", output)
+    logging.info(f"Model output: \n{output}")
     return output, []
     
 
@@ -123,5 +124,5 @@ if __name__ == "__main__":
         {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
         {"user": "Minh", "content": "Help me create a monthly budget plan"},
     ])
-    print(f"Response: {response}")
+    logging.info(f"Response: {response}")
         

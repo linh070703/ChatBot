@@ -18,13 +18,13 @@ def translate(text: str, src="vi", dest="en") -> str:
 {text}
 
 {dest}:"""
-    print("Model input: \n", model_input)
+    logging.info(f"Model input: \n{model_input}")
     output = generate_general_call_chatgpt_api(
         inputs=model_input,
         top_p=0.92,
         max_tokens=4096,
     )
-    print("Model output: \n", output)
+    logging.info(f"Model output: \n{output}")
     return output
     
 
@@ -46,7 +46,7 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
         print("Question and answer language are the same. No need to translate.")
         return answer
     else:
-        print(f"Question language: {question_lang}")
-        print(f"Answer language: {answer_lang}")
-        print(f"Translating answer to {question_lang}...")
+        logging.info(f"Question language: {question_lang}")
+        logging.info(f"Answer language: {answer_lang}")
+        logging.info(f"Translating answer to {question_lang}...")
         return translate(answer, src=answer_lang, dest=question_lang)

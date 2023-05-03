@@ -123,7 +123,7 @@ def chat():
         'suggestions': ['Help me create a monthly budget plan', 'Help me calculate my target saving plan', 'Help me detect if a loan is usury or not', 'Help me invest my money', 'Help me pay off my debt']
     }
     """
-    print(f"Received request: {request.json}")
+    logging.info(f"Received request: {request.json}")
     _ = request.json.get('model', 'gpt4all')
     messages = request.json.get('messages', [])
     stream = request.json.get('stream', False)
@@ -155,12 +155,12 @@ def chat():
             'suggestions': suggestions
         })
 
-    print(f"All Messages: {messages}")
+    logging.info(f"All Messages: {messages}")
     print(f'====================')
 
     intention = dectect_user_intention(messages)
 
-    print(f"Intention: {intention}")
+    logging.info(f"Intention: {intention}")
 
     if intention == 'NO_SYSTEM_ACTION':
         return jsonify({
@@ -173,7 +173,7 @@ def chat():
     elif intention == 'ASK_ASSISTANT':
         bot_response, suggestions = ask_assistant(messages)
         
-        print(f"Bot_response: {bot_response}")
+        logging.info(f"Bot_response: {bot_response}")
 
         bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
 

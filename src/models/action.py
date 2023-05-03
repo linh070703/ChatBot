@@ -5,6 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, pprint, print
+import logging
 import re
 
 def get_action_params(
@@ -69,13 +70,13 @@ If RESULT is ENOUGH_PARAMS, then system will output the system action "ACTION: T
 {conversation}
 -- System analyzing {last_user}'s request --
 REASONING:"""
-        print("Model input: \n", model_input)
+        logging.info(f"Model input: \n{model_input}")
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=0,
             max_tokens=256,
         )
-        print("Model output: \n", output)
+        logging.info(f"Model output: \n{output}")
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
@@ -105,13 +106,13 @@ If RESULT is OK, then system will output the system action "ACTION: CREATE_CHAT_
 {conversation}
 -- System analyzing {last_user}'s request --
 REASONING:"""
-        print("Model input: \n", model_input)
+        logging.info(f"Model input: \n{model_input}")
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=0,
             max_tokens=256,
         )
-        print("Model output: \n", output)
+        logging.info(f"Model output: \n{output}")
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NO_USERS":   
@@ -143,13 +144,13 @@ REASONING:-- Conversation --
 {conversation}
 -- System analyzing {last_user}'s request --
 REASONING:"""
-        print("Model input: \n", model_input)
+        logging.info(f"Model input: \n{model_input}")
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=0,
             max_tokens=256,
         )
-        print("Model output: \n", output)
+        logging.info(f"Model output: \n{output}")
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
