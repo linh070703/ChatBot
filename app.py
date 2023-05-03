@@ -8,7 +8,6 @@ from flask import (
     send_from_directory
 )
 from flask_cors import CORS
-from typing import List, Dict, Union, Any
 from queue import Queue
 import threading
 import time
@@ -16,7 +15,6 @@ import json
 import sys
 import requests
 import logging
-from typing import List, Dict, Union, Any, Tuple
 from src.utils.logger import setup_logging, pprint, print
 from src.models.action import get_action_params_with_validator
 from src.models.intention_detector import dectect_user_intention
@@ -195,7 +193,7 @@ def chat():
             }
         }
     elif intention == 'TRANSFER':
-        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='TRANSFER')
+        is_enough_params, payload = get_action_params_with_validator(messages, action='TRANSFER')
         if is_enough_params:
             res = {
                 'action': {
@@ -215,7 +213,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'TRANSFER_TO_EACH_USERS':
-        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='TRANSFER_TO_EACH_USERS')
+        is_enough_params, payload = get_action_params_with_validator(messages, action='TRANSFER_TO_EACH_USERS')
         if is_enough_params:
             res = {
                 'action': {
@@ -235,7 +233,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'CREATE_CHAT_GROUP':
-        is_enough_params, payload: Union[Dict[str, str], str] = get_action_params_with_validator(messages, action='CREATE_CHAT_GROUP')
+        is_enough_params, payload = get_action_params_with_validator(messages, action='CREATE_CHAT_GROUP')
         if is_enough_params:
             res = {
                 'action': {
