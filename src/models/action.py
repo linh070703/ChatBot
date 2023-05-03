@@ -123,7 +123,7 @@ REASONING:"""
         group_name = action_params.split("[")[1].split("|")[1:]
         group_name = "|".join(group_name).split("]")[0].strip()
         if group_name.lower() == "null" or group_name.lower() == "none" or group_name == "":
-            raise Exception("Group name is empty")
+            params["group_name"] = None
         else:
             params["group_name"] = group_name
 
