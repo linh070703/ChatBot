@@ -16,7 +16,7 @@ import sys
 import requests
 import logging
 from src.utils.logger import setup_logging, pprint, print
-from src.models.action import get_action_params_with_validator
+from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
 import re
@@ -193,8 +193,8 @@ def chat():
             }
         }
     elif intention == 'TRANSFER':
-        is_enough_params, payload = get_action_params_with_validator(messages, action='TRANSFER')
-        if is_enough_params:
+        payload = get_action_params(messages, action='TRANSFER')
+        if isinstance(payload, dict):
             res = {
                 'action': {
                     'command': 'TRANSFER',
@@ -213,8 +213,8 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'TRANSFER_TO_EACH_USERS':
-        is_enough_params, payload = get_action_params_with_validator(messages, action='TRANSFER_TO_EACH_USERS')
-        if is_enough_params:
+        payload = get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
+        if isinstance(payload, dict):
             res = {
                 'action': {
                     'command': 'TRANSFER_TO_EACH_USERS',
@@ -233,8 +233,8 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'CREATE_CHAT_GROUP':
-        is_enough_params, payload = get_action_params_with_validator(messages, action='CREATE_CHAT_GROUP')
-        if is_enough_params:
+        payload = get_action_params(messages, action='CREATE_CHAT_GROUP')
+        if isinstance(payload, dict):
             res = {
                 'action': {
                     'command': 'CREATE_CHAT_GROUP',
