@@ -79,10 +79,10 @@ REASONING:"""
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
-            return output.split("RESPONSE: ")[1].strip()
+            return re.search(r"RESPONSE: (.*)", output).group(1)
 
         assert result == "ENOUGH_PARAMS", f"Invalid result: {result}"
-        action_params = output.split("ACTION: ")[1].strip()
+        action_params = re.search(r"ACTION: (.*)", output).group(1) 
         params["receiver"] = action_params.split("|")[0].split("[")[1].split(",")[0].strip()
         params["amount"] = action_params.split("|")[0].split("[")[1].split(",")[1].strip()
         msg = action_params.split("[")[1].split("|")[1:]
@@ -115,10 +115,10 @@ REASONING:"""
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NO_USERS":   
-            return output.split("RESPONSE: ")[1].strip()
+            return re.search(r"RESPONSE: (.*)", output).group(1)
 
         assert result == "OK", f"Invalid result: {result}"
-        action_params = output.split("ACTION: ")[1].strip()
+        action_params = re.search(r"ACTION: (.*)", output).group(1) 
         params["members"] = action_params.split("|")[0].split("[")[1].split(",")
         group_name = action_params.split("[")[1].split("|")[1:]
         group_name = "|".join(group_name).split("]")[0].strip()
@@ -151,10 +151,10 @@ REASONING:"""
 
         result = re.search(r"RESULT: (.*)", output).group(1)
         if result == "NOT_ENOUGH_PARAMS":   
-            return output.split("RESPONSE: ")[1].strip()
+            return re.search(r"RESPONSE: (.*)", output).group(1)
 
         assert result == "ENOUGH_PARAMS", f"Invalid result: {result}"
-        action_params = output.split("ACTION: ")[1].strip()
+        action_params = re.search(r"ACTION: (.*)", output).group(1) 
         params["amount_each"] = action_params.split("|")[0].split("[")[1].split(",")[0].strip()
         msg = action_params.split("[")[1].split("|")[1:]
         msg = "|".join(msg).split("]")[0].strip()
