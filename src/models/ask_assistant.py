@@ -11,7 +11,7 @@ from expert_system import loan, money_management, economical
 
 VIETNAMESE_MODE = True
 
-PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive response along with useful general detailed advices for user. Answers should be no more than 250 words, using markdown syntax, and always in English."""
+PROMPT_GENERAL = """This is a Personal Finance Assistant system. This system can provide comprehensive response along with useful general detailed advices for user. Answer in language as same as User's question. Answers should be no more than 250 words and use markdown syntax when needed."""
 INTRODUCTION = """Hi, I am your personal finance assistant. I can help you with the following tasks:
 
 - Check your account balance
