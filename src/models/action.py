@@ -47,7 +47,7 @@ def get_action_params_with_validator(
         ... ]
         >>> get_action_params_with_validator(messages, action="CREATE_CHAT_GROUP")
         True, {
-            "users": [
+            "members": [
                 "Nam",
                 "Lan",
             ],
@@ -55,7 +55,7 @@ def get_action_params_with_validator(
         }
     """
     params, model_raw_output = get_action_params(messages, action)
-    is_enough_params, request_message = validate_param(messages, action, model_raw_output, params)
+    is_enough_params, request_message = validate_param(messages, model_raw_output, action, params)
     if is_enough_params:
         return is_enough_params, params
     else:
@@ -74,7 +74,7 @@ def get_action_params(
         action (Literal["TRANSFER", "CREATE_CHAT_GROUP"]): User's intention, which is one of "TRANSFER" or "CREATE_CHAT_GROUP".
     
     Returns:
-        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "users".
+        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "members".
 
     Example:
         >>> messages = [
@@ -99,7 +99,7 @@ def get_action_params(
         ... ]
         >>> get_action_params(messages, action="CREATE_CHAT_GROUP")
         {
-            "users": [
+            "members": [
                 "Nam",
                 "Lan",
             ],
@@ -144,10 +144,10 @@ def get_action_params(
 
 def validate_param(
         messages: List[Dict[str, str]],
-        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
         model_raw_output: str,
+        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
         params: Dict[str, str],
-    ) -> Dict[str, str]:
+    ) -> Tuple[bool, Union[str, None]]:
     """
     Get action parameters from conversation history and user's intention.
 
@@ -156,7 +156,7 @@ def validate_param(
         action (Literal["TRANSFER", "CREATE_CHAT_GROUP"]): User's intention, which is one of "TRANSFER" or "CREATE_CHAT_GROUP".
     
     Returns:
-        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "users".
+        Dict[str, str]: Action parameters. If action is "TRANSFER", then the returned dictionary should have 2 keys: "receiver" and "amount". If action is "CREATE_CHAT_GROUP", then the returned dictionary should have 1 key: "members".
 
     Example:
     """
