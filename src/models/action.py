@@ -59,9 +59,9 @@ def get_action_params(
         last_user = messages[-1]['user']
         model_input = f"""This is a financial assistant system that can TRANSFER money when user request. English and Vietnamese are supported. System's action syntax is: TRANSFER[<receiver>,<amount>|<message>]. Note that money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000).
 System will first output "REASONING: <thinking about user's intention, between 3 to 5 sentences, and analyze each param 'receiver', 'amount', and 'message'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
-    [ ] receiver (need to be real username)
-    [ ] amount (need to be number)
-    [ ] message (at least 2 words, same language as User's request)
+[ ] receiver (need to be real username)
+[ ] amount (need to be number)
+[ ] message (at least 2 words, same language as User's request)
 Then, if any of the param is missing, e.g. user did not explicitly mention receiver's username, then system will follows with "RESULT: NOT_ENOUGH_PARAMS". "ENOUGH_PARAMS" otherwise.
 If RESULT is NOT_ENOUGH_PARAMS, then system will output a response "RESPONSE: ..." asking user to provide more information. Note that system should response in the same language as User's question.
 If RESULT is ENOUGH_PARAMS, then system will output the system action "ACTION: TRANSFER[...]"
@@ -96,8 +96,8 @@ REASONING:"""
         conversation = "\n".join([f"{message['user']}: {message['content']}" for message in messages])
         last_user = messages[-1]['user']
         model_input = f"""This is an assistant system that can CREATE_CHAT_GROUP when user request. English and Vietnamese are supported. System's action syntax is: CREATE_CHAT_GROUP[<user_comma_separated>|<group_name (nullable)>]. System will first output "REASONING: <thinking about user's intention, between 30-50 words, and analyze each param 'user_comma_separated' and 'group_name'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
-    [ ] user_comma_separated (need to be a list of username with comma separated)
-    [ ] group_name (Did user explicitly mention the group name?)
+[ ] user_comma_separated (need to be a list of username with comma separated)
+[ ] group_name (Did user explicitly mention the group name?)
 Then, if user did not explicitly mention the list of users, then system will follows with "RESULT: NO_USERS". "OK" otherwise.
 If RESULT is NO_USERS, then system will output a response "RESPONSE: ..." asking user to provide user list. Note that system should response in the same language as User's question.
 If RESULT is OK, then system will output the system action "ACTION: CREATE_CHAT_GROUP[...]"
@@ -132,8 +132,8 @@ REASONING:"""
         last_user = messages[-1]['user']
         model_input = f"""This is a financial assistant system that can TRANSFER_TO_EACH_USERS money when user request. English and Vietnamese are supported. System's action syntax is: TRANSFER_TO_EACH_USERS[<amount>|<message>]. Note that money abbreviation should be expanded without comma or dot. E.g. (30k=30000, 24tr=24000000, 5 nghìn=5000, tám chục nghìn=80000).
 System will first output "REASONING: <thinking about user's intention, between 30-50 words, and analyze each param 'amount' and 'message'>". Then, system will output "CHECKLIST: " and then tick a checklist (using [x]) for each param:
-    [ ] amount (need to be number)
-    [ ] message (Is the purpose of the transaction specified?)
+[ ] amount (need to be number)
+[ ] message (Is the purpose of the transaction specified?)
 Then, if any of the param is missing, e.g. user did not explicitly mention the transaction purpose, then system will follows with "RESULT: NOT_ENOUGH_PARAMS". "ENOUGH_PARAMS" otherwise.
 If RESULT is NOT_ENOUGH_PARAMS, then system will output a response "RESPONSE: ..." asking user to provide more information. Note that system should response in the same language as User's question.
 If RESULT is ENOUGH_PARAMS, then system will output the system action "ACTION: TRANSFER_TO_EACH_USERS[...]"
