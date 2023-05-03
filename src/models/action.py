@@ -72,7 +72,7 @@ REASONING:"""
         print("Model input: \n", model_input)
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
-            temperature=1,
+            temperature=0,
             max_tokens=256,
         )
         print("Model output: \n", output)
@@ -88,7 +88,7 @@ REASONING:"""
         msg = action_params.split("[")[1].split("|")[1:]
         msg = "|".join(msg).split("]")[0].strip()
         if msg.lower() == "null" or msg.lower() == "none" or msg == "":
-            raise Exception("Message is empty")
+            raise Exception("Transaction message is empty")
         else:
             params["msg"] = msg
 
@@ -108,7 +108,7 @@ REASONING:"""
         print("Model input: \n", model_input)
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
-            temperature=1,
+            temperature=0,
             max_tokens=256,
         )
         print("Model output: \n", output)
@@ -144,7 +144,7 @@ REASONING:"""
         print("Model input: \n", model_input)
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
-            temperature=1,
+            temperature=0,
             max_tokens=256,
         )
         print("Model output: \n", output)
