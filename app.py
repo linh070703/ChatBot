@@ -14,14 +14,18 @@ import time
 import json
 import sys
 import requests
+import re
 import logging
+
 from src.utils.logger import setup_logging, pprint, print
 from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant
 from src.models.response_message import get_response_message
 from src.models.translator import convert_answer_language_to_same_as_question
-import re
+
+from src.charts.compare import get_compare_chart_data
+from src.charts.earnings import get_earnings_chart_data
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
@@ -36,14 +40,28 @@ def health():
     return "OK", 200
 
 @app.route('/iframe/chart/<type>', methods=['GET'])
-def iframe(type):
+def iframe(type: str):
     logging.info(f"Received request params: {request.args}")
-    assert type in ['compare', 'earnings'], "Invalid type param"
-    assert request.args.get('code') is not None, "Missing code param"
-    period = request.args.get('period', '1-year')
-    codes = request.args.get('code').split(',')
+    data = None
+    if type == 'compare':
+        assert request.args.get('code') is not None, "Missing code param"
+        period = request.args.get('period', '1-year')
+        codes = request.args.get('code').split(',')
+        data = get_compare_chart_data(...)
+        data = {
+            ...
+        }
+    elif type == 'earnings':
+        ...
+        data = get_earnings_chart_data(...)
+        ...
+        data = {
+            ...
+        }
+    else:
+        return f"Invalid type param: {type}", 400
     ...
-    return render_template('iframe.html')
+    return render_template('iframe.html', data=data)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
