@@ -1,6 +1,7 @@
 from typing import List, Dict, Any, Union, Literal, Tuple, Optional
 from langdetect import detect
 from utils.model_api import generate_general_call_chatgpt_api
+from utils.logger import logging, print
 
 def translate(text: str, src="vi", dest="en") -> str:
     """

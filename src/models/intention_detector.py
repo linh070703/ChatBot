@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_action_chatgpt_api
-from utils.logger import setup_logging_display_only
+from utils.logger import setup_logging_display_only, print
 import logging
 
 PROMPT = """This is a user's intention detecting system. This system is able to detect intention of users in conversation history and direct message. English and Vietnamese are supported. There are 6 possible user's intentions: CHECK_BALANCE, TRANSFER, TRANSFER_TO_EACH_USERS, CREATE_CHAT_GROUP, ASK_ASSISTANT, NO_SYSTEM_ACTION."""
