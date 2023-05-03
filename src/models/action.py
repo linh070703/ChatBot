@@ -73,7 +73,7 @@ REASONING:"""
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=1,
-            max_length=256,
+            max_tokens=256,
         )
         print("Model output: \n", output)
 
@@ -109,7 +109,7 @@ REASONING:"""
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=1,
-            max_length=256,
+            max_tokens=256,
         )
         print("Model output: \n", output)
 
@@ -145,7 +145,7 @@ REASONING:"""
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
             temperature=1,
-            max_length=256,
+            max_tokens=256,
         )
         print("Model output: \n", output)
 
