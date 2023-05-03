@@ -1,7 +1,7 @@
 Flask
 Flask-cors
-unidecode
-emoji
+# unidecode
+# emoji
 waitress
 requests
 openai
