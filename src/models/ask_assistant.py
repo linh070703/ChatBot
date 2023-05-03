@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import re
 from typing import List, Literal, Dict, Union, Any, Tuple
-from utils.model_api import generate_conversation_chatgpt_api
+from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
 import logging
 from expert_system import loan, money_management, economical
@@ -111,7 +111,12 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     conversation = "\n".join([f"{' '.join(('User' if message['user'].lower() != 'assistant' else 'Assistant').split())}: {' '.join(message['content'].split())}" for message in messages])
     model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
     logging.info(f"Model input: \n{model_input}")
-    output = generate_conversation_chatgpt_api(model_input)
+    output = generate_general_call_chatgpt_api(
+        inputs=model_input,
+        temperature=0.5,
+        top_p=0.92,
+        max_tokens=3072,
+    )
     output = " ".join(output.split())
     logging.info(f"Model output: \n{output}")
     return output, []
