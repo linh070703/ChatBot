@@ -166,9 +166,9 @@ def chat():
         })
     
     elif intention == 'ASK_ASSISTANT':
-        print(f"Bot_response: {bot_response}")
-
         bot_response, suggestions = ask_assistant(messages)
+        
+        print(f"Bot_response: {bot_response}")
 
         bot_response = re.sub("(?i)chatGPT", "your personal assistant", bot_response)
 
