@@ -42,6 +42,10 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
     question_lang = detect(question)
     answer_lang = detect(answer)
     if question_lang == answer_lang:
+        print("Question and answer language are the same. No need to translate.")
         return answer
     else:
+        print(f"Question language: {question_lang}")
+        print(f"Answer language: {answer_lang}")
+        print(f"Translating answer to {question_lang}...")
         return translate(answer, src=answer_lang, dest=question_lang)
