@@ -146,6 +146,10 @@ def chat():
             'message': {
                 'role': 'assistant', 'content': bot_response
             },
+            'action': {
+                'command': 'ASK_ASSISTANT',
+                'params': {}
+            },
             'suggestions': suggestions
         })
 
