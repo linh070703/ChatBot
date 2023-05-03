@@ -8,8 +8,6 @@ from flask import (
     send_from_directory
 )
 from flask_cors import CORS
-from queue import Queue
-import threading
 import time
 import json
 import sys
