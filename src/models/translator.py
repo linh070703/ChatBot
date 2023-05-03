@@ -21,8 +21,9 @@ def translate(text: str, src="vi", dest="en") -> str:
     logging.info(f"Model input: \n{model_input}")
     output = generate_general_call_chatgpt_api(
         inputs=model_input,
+        temperature=0.5,
         top_p=0.92,
-        max_tokens=4096,
+        max_tokens=3072,
     )
     logging.info(f"Model output: \n{output}")
     return output
