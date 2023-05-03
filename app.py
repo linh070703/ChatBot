@@ -31,9 +31,9 @@ CORS(app)
 setup_logging('app.log')
 
 # check health
-@app.route('/health', methods=['POST'])
+@app.route('/health', methods=['GET'])
 def health():
-    return jsonify({'status': 'ok'})
+    return "OK", 200
 
 @app.route('/iframe/chart/<type>', methods=['GET'])
 def iframe(type):
