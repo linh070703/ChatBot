@@ -26,10 +26,12 @@ from src.models.translator import convert_answer_language_to_same_as_question
 
 from src.charts.compare import get_compare_chart_data
 from src.charts.earnings import get_earnings_chart_data
+from src.charts.chart import chart
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 app.json.ensure_ascii = False
+app.register_blueprint(chart, url_prefix='/chart')
 
 CORS(app)
 setup_logging('app.log')
