@@ -71,60 +71,12 @@ def generate_torchserve(inputs: str, temperature: float) -> str:
 
 @lru_cache(maxsize=1024)
 @handle_api_errors(max_retries=len(api_keys))
-def generate_conversation_chatgpt_api(inputs: str) -> str:
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=inputs,
-        # temperature=1,
-        max_tokens=512,
-        top_p=0.95,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        stop=["User:"],
-        api_key=next(api_keys_cycle),
-    )['choices'][0]['text']
-    return response
-
-@lru_cache(maxsize=1024)
-@handle_api_errors(max_retries=len(api_keys))
-def generate_action_chatgpt_api(inputs: str) -> str:
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=inputs,
-        temperature=0,
-        max_tokens=12,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        stop=[r"]"],
-        api_key=next(api_keys_cycle),
-    )['choices'][0]['text']
-    return response
-
-@lru_cache(maxsize=1024)
-@handle_api_errors(max_retries=len(api_keys))
-def generate_action_params_chatgpt_api(inputs: str) -> str:
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=inputs,
-        temperature=0,
-        max_tokens=64,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0,
-        stop=[r"]"],
-        api_key=next(api_keys_cycle),
-    )['choices'][0]['text']
-    return response
-
-@lru_cache(maxsize=1024)
-@handle_api_errors(max_retries=len(api_keys))
 def generate_general_call_chatgpt_api(
         inputs: str,
         temperature: Optional[float] = None,
         top_p: Optional[float] = None,
         max_tokens: int = 64,
-        stop: Optional[List[str]] = None,
+        stop: Optional[Tuple[str]] = None,
     ) -> str:
     params = {}
     # either of temperature or top_p must be specified
@@ -145,6 +97,3 @@ def generate_general_call_chatgpt_api(
         api_key=next(api_keys_cycle),
     )['choices'][0]['text']
     return response
-
-def generate_mock(inputs: str, temperature: float) -> str:
-    return "Intent:TRANSFER_MONEY\nAction:TRANSFER_MONEY[amount=100, from=Minh, to=test9]\nAssistant: Sure Onii-chan 🥺! I will send Minh 100$ for the pizza."
