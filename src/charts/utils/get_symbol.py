@@ -1,7 +1,7 @@
 import os
 from alpha_vantage.timeseries import TimeSeries
 
-def getSymbol(company_name):
+def get_symbol(company_name):
 	# Initialize the TimeSeries object with your API key
 	ts = TimeSeries(
 		key=os.environ.get('ALPHA_VANTAGE_API_KEY'),
