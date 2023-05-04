@@ -1,7 +1,7 @@
 import os
 from alpha_vantage.timeseries import TimeSeries
 
-def get_metrics(symbol):
+def get_compare_metrics(symbol):
 	ts = TimeSeries(
 		key=os.environ.get('ALPHA_VANTAGE_API_KEY'),
 		output_format='pandas'

@@ -24,8 +24,6 @@ from src.models.ask_assistant import ask_assistant
 from src.models.response_message import get_response_message
 from src.models.translator import convert_answer_language_to_same_as_question
 
-from src.charts.compare import get_compare_chart_data
-from src.charts.earnings import get_earnings_chart_data
 from src.charts.chart import chart
 
 app = Flask(__name__)
@@ -40,30 +38,6 @@ setup_logging('app.log')
 @app.route('/health', methods=['GET'])
 def health():
     return "OK", 200
-
-@app.route('/iframe/chart/<type>', methods=['GET'])
-def iframe(type: str):
-    logging.info(f"Received request params: {request.args}")
-    data = None
-    if type == 'compare':
-        assert request.args.get('code') is not None, "Missing code param"
-        period = request.args.get('period', '1-year')
-        codes = request.args.get('code').split(',')
-        data = get_compare_chart_data(...)
-        data = {
-            ...
-        }
-    elif type == 'earnings':
-        ...
-        data = get_earnings_chart_data(...)
-        ...
-        data = {
-            ...
-        }
-    else:
-        return f"Invalid type param: {type}", 400
-    ...
-    return render_template('iframe.html', data=data)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
