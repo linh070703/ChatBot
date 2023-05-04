@@ -18,6 +18,7 @@ services:
         build: .
         restart: on-failure
         command: python3 app.py
+        container_name: chatbot
         volumes:
             - ./src/:/app/src/
             - ./app.py:/app/app.py
@@ -30,7 +31,7 @@ services:
 
     front_end:
         image: node:16.3.0
-        container_name: node-server
+        container_name: front_end
         network_mode: "host"
         volumes:
         - /home/minhpvt/fe-runner/_work/Chat-Webapp/Chat-Webapp/build/:/app
