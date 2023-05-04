@@ -1,9 +1,20 @@
 version: "3.8"
 
 services:
-    flask_api_gpt:
-        networks:
-            - ai_net
+    nginx:
+        image: nginx:latest
+        container_name: reverse-proxy-nginx
+        network_mode: "host"
+        #ports:
+        #- 5600:5600
+        #- "443:443"
+        volumes:
+        - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+        - ./nginx/snippets:/etc/nginx/snippets
+        - /home/minhpvt/fe-runner/:/app:Z
+        - ./nginx/certs:/etc/nginx/certs
+
+    chatbot:
         build: .
         restart: on-failure
         command: python3 app.py
@@ -11,12 +22,16 @@ services:
             - ./src/:/app/src/
             - ./app.py:/app/app.py
         ports:
-            - "5001:5000"
+            - "5000:5000"
         environment:
             - FLASK_ENV=development
         env_file:
             - .env
 
-networks:
-    ai_net:
-        driver: bridge
+    front_end:
+        image: node:16.3.0
+        container_name: node-server
+        network_mode: "host"
+        volumes:
+        - /home/minhpvt/fe-runner/_work/Chat-Webapp/Chat-Webapp/build/:/app
+        command: bash -c "npm install -g serve && serve -l 5600 -s /app"
