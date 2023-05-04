@@ -93,15 +93,21 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
             "Tôi muốn được tư vấn tài chính"
         ]
 
+    response = None
     message: str = messages[-1]["content"]
     if money_management.is_money_management_question(message):
-        return money_management.money_management_suggestion(messages)
+        response, suggestions = money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(message):
-        return economical.economical_suggestion(messages)
+        response, suggestions = economical.economical_suggestion(messages)
     elif loan.is_loan_question(message):
-        return loan.loan_suggestion(messages)
+        response, suggestions = loan.loan_suggestion(messages)
+
+    if response is not None:
+        return response, suggestions
     else:
+        # above cases all failed
         return general_suggestion(messages)
+
 
 def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
