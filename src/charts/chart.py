@@ -29,13 +29,14 @@ def earning():
     earning_data = get_earning_data(symbol)
 
     # map to each element become reportedEPS - estimatedEPS
-    data = list(map(lambda x: float(
-        x['reportedEPS']) - float(x['estimatedEPS']), earning_data))
+    # data = list(map(lambda x: float(
+    #     x['reportedEPS']) - float(x['estimatedEPS']), earning_data))
     
-    # Round to 2 decimal places
-    data = list(map(lambda x: round(x, 2), data))
+    # # Round to 2 decimal places
+    # data = list(map(lambda x: round(x, 2), data))
 
-    chart_title = 'My Chart Title'
     labels = list(map(lambda x: x['fiscalDateEnding'], earning_data))
+    reportedEPS = list(map(lambda x: round(float(x['reportedEPS']), 2), earning_data))
+    estimatedEPS = list(map(lambda x: round(float(x['estimatedEPS']), 2), earning_data))
 
-    return render_template('iframe.html', data=data, labels=labels, chart_title=chart_title, symbol=symbol)
+    return render_template('iframe.html', reportedEPS=reportedEPS, estimatedEPS=estimatedEPS, labels=labels, symbol=symbol)
