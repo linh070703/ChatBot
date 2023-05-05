@@ -6,6 +6,7 @@ sys.path.append("/home/thaiminhpv/Workspace/Code/FUNiX-ChatGPT-Hackathon/Chatbot
 from typing import Dict, List, Tuple, Union, Literal, Any
 from utils.logger import print, setup_logging_display_only
 from utils.model_api import generate_general_call_chatgpt_api
+from expert_system.utils import calculator
 from expert_system.utils.stage import get_current_stage
 import re
 import logging
@@ -70,7 +71,7 @@ def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, Li
     
     conversation = "\n".join([f"- {' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
     last_user = messages[-1]['user']
-    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as {{300*20%}} to calculate the result.
+    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as CALCULATE[30000*20%] to calculate the result.
 
 ## Script:
 ### Stage 1:
@@ -82,9 +83,9 @@ Current stage: Stage 1
 ### Stage 2:
 Expectation: Assistant will ask User about their income and then User response with their income.
 - User: 5 triệu
-Analyzing: User is telling their income, which still is in the scope of money management.
+Analyzing: User is telling their income SET_INCOME[5000000], which still is in the scope of money management.
 Current stage: Stage 2
-- Assistant: OK. Theo mình thì bạn nên dành {{salary*55%}} cho các chi tiêu cần thiết, {{salary*10%}} cho từng quỹ: tiết kiệm dài hạn, giáo dục, hưởng thụ và tự do tài chính. Và dành {{salary*5%}} cho việc từ thiện.
+- Assistant: OK. Theo mình thì bạn nên dành CALCULATE[income*55/100] cho các chi tiêu cần thiết, CALCULATE[income*10/100] cho từng quỹ: tiết kiệm dài hạn, giáo dục, hưởng thụ và tự do tài chính. Và dành CALCULATE[income*5/100] cho việc từ thiện.
 ### Stage 3:
 Expectation: Assistant will response with the budget plan. User will response with their feedback on why they should spend that amount of money on each category.
 - User: Vì sao mình nên dành từng đó cho các chi tiêu cần thiết?
@@ -116,6 +117,13 @@ Analyzing:"""
     if current_stage == 'Stage 1':
         return response_message, ['5 triệu']  
     if current_stage == 'Stage 2':
+        # post process CALCULATE[5000*55/100] -> 2750 here
+        income = calculator.get_income(output)
+        print(f"income: {income}")
+        if not income:
+            logging.warning(f"Cannot get income from model output: {output}")
+
+        response_message = calculator.calculate(response_message, income=income)
         return response_message, STAGE2_QUESTIONS
     if current_stage == 'Stage 3':
         if "chi tiêu cần thiết" in output:
@@ -174,7 +182,7 @@ if __name__ == "__main__":
         {"user": "Alex", "content": "Tôi muốn được tư vấn về tài chính cá nhân."},
         {"user": "Assistant", "content": "Chào Alex, mình sẽ giúp bạn lên kế hoạch chi tiêu hàng tháng nhé. Thu nhập hiện tại mỗi tháng của bạn là bao nhiêu nhỉ?"},
         {"user": "Alex", "content": "12 triệu"},
-        {"user": "Assistant", "content": "OK. Theo mình thì bạn nên dành 6 triệu 600 trăm cho các chi tiêu cần thiết, 1 triệu 200 nghìn cho từng quỹ: tiết kiệm dài hạn, giáo dục, hưởng thụ và tự do tài chính. Và dành 600 nghìn cho việc từ thiện."},
-        {"user": "Alex", "content": "Tạo sao lại để từ thiện nhỉ?"},
+        # {"user": "Assistant", "content": "OK. Theo mình thì bạn nên dành 6 triệu 600 trăm cho các chi tiêu cần thiết, 1 triệu 200 nghìn cho từng quỹ: tiết kiệm dài hạn, giáo dục, hưởng thụ và tự do tài chính. Và dành 600 nghìn cho việc từ thiện."},
+        # {"user": "Alex", "content": "Tạo sao lại để từ thiện nhỉ?"},
     ])
     print(f"Final output: {out}")
