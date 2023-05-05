@@ -1,36 +1,67 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Bar Chart Example</title>
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-	</head>
-	<body>
-		<canvas id="myChart"></canvas>
-		<script>
-			const ctx = document.getElementById('myChart').getContext('2d');
-			const myChart = new Chart(ctx, {
-			    type: 'bar',
-			    data: {
-			        labels: {{ labels|tojson }},
-			        datasets: [{
-			            // label: '{{ chart_title }}',
-			            label: 'EPS',
-			            data: {{ data|tojson }},
-			            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-			            borderColor: 'rgba(255, 99, 132, 1)',
-			            borderWidth: 1
-			        }]
-			    },
-			    options: {
-			        scales: {
-			            yAxes: [{
-			                ticks: {
-			                    beginAtZero: true
-			                }
-			            }]
-			        }
-			    }
-			});
-		</script>
-	</body>
+    <head>
+        <title>Bar Chart Example</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+        <style>
+            h2 {
+                text-align: center;
+            }
+			#chart-container {
+				width:964px;
+				height:482px;
+
+				/* center div */
+				/* display: inline; */
+				margin: 0 auto;
+			}
+        </style>
+    </head>
+    <body>
+        <h2>Quarterly Earnings Per Share - ({{ symbol|upper }})
+			<br>Estimated vs Reported
+		</h2>
+		<div id="chart-container">
+			<canvas id="chart"></canvas>
+		</div>
+        <script>
+            const ctx = document.getElementById('chart').getContext('2d');
+			Chart.register(ChartDataLabels);
+            const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: {{ labels|tojson }},
+                    datasets: [{
+                        // label: '{{ chart_title }}',
+                        label: 'EPS',
+                        data: {{ data|tojson }},
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    // maintainAspectRatio: false,
+					// responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    },
+					plugins: {
+						datalabels: {
+							anchor: 'end',
+							align: 'top',
+							font: {
+								weight: 'bold'
+							}
+						}
+					}
+                }
+            });
+        </script>
+    </body>
 </html>

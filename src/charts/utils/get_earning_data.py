@@ -12,7 +12,10 @@ def get_earning_data(symbol):
 	
 	quarterlyEarnings = data['quarterlyEarnings']
 
+	# Filer none
+	quarterlyEarnings = list(filter(lambda x: x['reportedEPS'] != 'None', quarterlyEarnings))
+
 	# get first LIMIT quarterly earnings
-	quarterlyEarnings = quarterlyEarnings[:LIMIT]
+	quarterlyEarnings = quarterlyEarnings[:min(LIMIT, len(quarterlyEarnings))]
 
 	return quarterlyEarnings
