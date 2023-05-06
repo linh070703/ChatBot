@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+		<title>Transaction Overview</title>
+
+		<style>
+			body {
+				font-family: 'Courier New', Courier, monospaces;
+			}
+
+			#container {
+				width: 964px;
+				height: 482px;
+				margin: 0 auto;
+				overflow: hidden;
+			}
+
+			#title {
+				text-align: center;
+				font-family: 'Courier New', Courier, monospaces;
+			}
+
+			.info-container {
+				display: flex;
+				align-items: stretch; /* default value */
+			}
+
+			.left {
+				flex: 6;
+				border-right: 1px solid black;
+				height: 100%;
+
+				padding-right: 15px;
+			}
+
+			.right {
+				flex: 4;
+				height: 100%;
+			}
+
+			#customers {
+				/* font-family: Arial, Helvetica, sans-serif; */
+				border-collapse: collapse;
+				width: 100%;
+			}
+
+			#customers td,
+			#customers th {
+				border: 1px solid #ddd;
+				padding: 8px;
+			}
+
+			#customers tr:nth-child(even) {
+				background-color: #f2f2f2;
+			}
+
+			#customers tr:hover {
+				background-color: #ddd;
+			}
+
+			#customers th {
+				padding-top: 12px;
+				padding-bottom: 12px;
+				text-align: left;
+				background-color: #04aa6d;
+				color: white;
+			}
+
+			.chart-container {
+				width: 370px;
+				height: 370px;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container">
+			<h2 id="title">Transaction Overview in 05/2023</h2>
+			<div class="info-container">
+				<div class="left">
+
+					<table id="customers">
+						<tr>
+							<th>#</th>
+							<th>To</th>
+							<th>Value</th>
+							<th>Msg</th>
+							<th>Category</th>
+							<th>Time</th>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>thaiminh</td>
+							<td>30.000</td>
+							<td>Tiền ăn trưa</td>
+							<td>Food</td>
+							<td>12:00 05/05/2023</td>
+						</tr>
+					</table>
+				</div>
+				<div class="right">
+					<div class="chart-container">
+						<canvas></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			// Chart.register(ChartDataLabels);
+			const ctx = document.querySelector('canvas').getContext('2d');
+
+			const data = {
+				labels: ["Food", "Shopping", "Entertainment", "Utility", "Other"],
+				datasets: [{
+					label: 'Transaction',
+					data: [300, 50, 100, 200, 100],
+					backgroundColor: [
+						'rgb(255, 99, 132)',
+						'rgb(54, 162, 235)',
+						'rgb(255, 205, 86)',
+						'rgb(75, 192, 192)',
+						'rgb(153, 102, 255)'
+					],
+					hoverOffset: 4
+				}]
+			};
+
+			const config = {
+				type: 'pie',
+				data: data,
+				options: {
+					plugins: {
+						legend: {
+							position: 'top',
+						},
+						datalabels: {
+							color: '#fff',
+							anchor: 'end',
+							align: 'start',
+							backgroundColor: (context) => {
+								return context.dataset.backgroundColor;
+							},
+							font: {
+								weight: 'bold',
+								size: '10'
+							},
+							formatter: (value) => {
+								return value + ' %';
+							}
+						}
+					}
+				}
+			};
+
+			const myChart = new Chart(ctx, config);
+		</script>
+	</body>
+</html>
