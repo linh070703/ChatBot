@@ -175,14 +175,28 @@
 		</div>
 
 		<script>
+			const transactions = {{transactions|tojson}};
+
+			transactionsByCategory = {
+				"Food": 0,
+				"Shopping": 0,
+				"Entertainment": 0,
+				"Utility": 0,
+				"Other": 0
+			};
+			transactions.forEach(transaction => {
+				transactionsByCategory[transaction.category] += parseInt(transaction.amount);
+			});
+
+
 			// Chart.register(ChartDataLabels);
 			const ctx = document.querySelector('canvas').getContext('2d');
 
 			const data = {
-				labels: ["Food", "Shopping", "Entertainment", "Utility", "Other"],
+				labels: Object.keys(transactionsByCategory),
 				datasets: [{
 					label: 'Transaction',
-					data: [300, 50, 100, 200, 100],
+					data: Object.values(transactionsByCategory),
 					backgroundColor: [
 						'rgb(255, 99, 132)',
 						'rgb(54, 162, 235)',

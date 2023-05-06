@@ -4,9 +4,11 @@ from flask import (
     request
 )
 import random
+import datetime
 
 from src.charts.utils.get_compare_metrics import get_compare_metrics
 from src.charts.utils.get_earning_data import get_earning_data
+from src.charts.utils.get_transactions import get_transactions
 
 chart = Blueprint('chart', __name__)
 
@@ -76,3 +78,22 @@ def earning_line():
     reportedEPS = list(map(lambda x: round(float(x['reportedEPS']), 2), earning_data))
 
     return render_template('earning-line.html', reportedEPS=reportedEPS, labels=labels, symbol=symbol)
+
+@chart.route('/transaction', methods=['GET'])
+def transaction():
+    user = request.args.get('user')
+    date = request.args.get('date')
+
+    if date is None:
+        currentmonth = datetime.datetime.now().month
+        currentyear = datetime.datetime.now().year
+
+        date = str(currentmonth) + '-' + str(currentyear)
+
+    month, year = date.split('-')
+    month = int(month)
+    year = int(year)
+
+    transactions = get_transactions(user, month, year)
+
+    return render_template('transaction.html', transactions=transactions, date=date)

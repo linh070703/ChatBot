@@ -2,7 +2,7 @@ from firebase_admin import firestore
 
 db = firestore.client()
 
-def get_trasactions(user, month, year):
+def get_transactions(user, month, year):
 	transactions = db.collection(u'transaction')
 
 	# get all transactions not filter
