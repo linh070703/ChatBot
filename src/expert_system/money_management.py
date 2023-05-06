@@ -67,7 +67,7 @@ def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, Li
     ...    {"user": "Alex", "content": "Vì sao mình nên dành từng đó cho các chi tiêu cần thiết?"}
     ... ])
     """
-    messages = messages[-5:]
+    messages = messages[-7:]
     
     conversation = "\n".join([f"- {' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
     last_user = messages[-1]['user']
