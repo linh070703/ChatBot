@@ -24,12 +24,12 @@ from src.models.ask_assistant import ask_assistant, match_question
 from src.models.response_message import get_response_message
 from src.models.translator import convert_answer_language_to_same_as_question, answer_I_dont_know_multilingual, batch_convert_answer_language_to_same_as_question
 
-from src.charts.compare import get_compare_chart_data
-from src.charts.earnings import get_earnings_chart_data
+from src.charts.chart import chart
 
 app = Flask(__name__)
 app.config["JSON_AS_ASCII"] = False
 app.json.ensure_ascii = False
+app.register_blueprint(chart, url_prefix='/chart')
 
 CORS(app)
 setup_logging('app.log')
@@ -38,30 +38,6 @@ setup_logging('app.log')
 @app.route('/health', methods=['GET'])
 def health():
     return "OK", 200
-
-@app.route('/iframe/chart/<type>', methods=['GET'])
-def iframe(type: str):
-    logging.info(f"Received request params: {request.args}")
-    data = None
-    if type == 'compare':
-        assert request.args.get('code') is not None, "Missing code param"
-        period = request.args.get('period', '1-year')
-        codes = request.args.get('code').split(',')
-        data = get_compare_chart_data(...)
-        data = {
-            ...
-        }
-    elif type == 'earnings':
-        ...
-        data = get_earnings_chart_data(...)
-        ...
-        data = {
-            ...
-        }
-    else:
-        return f"Invalid type param: {type}", 400
-    ...
-    return render_template('iframe.html', data=data)
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
@@ -239,10 +215,6 @@ def chat():
         bot_response, suggestions = match_question(messages)
 
         if bot_response:
-            bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-            # suggestions = [convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=suggestion) for suggestion in suggestions]
-            suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
-
             return jsonify({
                 'message': {
                     'role': 'assistant', 'content': bot_response
@@ -269,9 +241,6 @@ def chat():
         bot_response, suggestions = ask_assistant(messages)
         
         logging.info(f"Bot_response: {bot_response}")
-
-        bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-        suggestions = [convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=suggestion) for suggestion in suggestions]
 
         res = {
             'message': {

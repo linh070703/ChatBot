@@ -6,9 +6,10 @@ import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
-from models.translator import convert_answer_language_to_same_as_question
+from models.translator import convert_answer_language_to_same_as_question, batch_convert_answer_language_to_same_as_question
 import logging
 from expert_system import loan, money_management, economical
+from models.langchain import advisor
 
 VIETNAMESE_MODE = True
 
@@ -53,14 +54,18 @@ def match_question(messages) -> Tuple[Union[str, None], List[str]]:
     
     if money_management.is_money_management_question(messages):
         logging.info("Money management question detected")
-        return money_management.money_management_suggestion(messages)
+        response, suggestions = money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(messages):
         logging.info("Economical question detected")
-        return economical.economical_suggestion(messages)
+        response, suggestions = economical.economical_suggestion(messages)
     # elif loan.is_loan_question(message):
     #     response, suggestions = loan.loan_suggestion(messages)
 
     logging.info("No pre-defined question matched")
+    if response is not None:
+        response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=response)
+        suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
+
     return response, suggestions
 
 def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
@@ -115,7 +120,6 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     
     response, suggestions = match_question(messages)
 
-
     if response is not None:
         return response, suggestions
     else:
@@ -128,26 +132,21 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     Suggest general advice
     """
     messages = messages[-4:]
-    conversation = "\n".join([f"{' '.join(('User' if message['user'].lower() != 'assistant' else 'Assistant').split())}: {' '.join(message['content'].split())}" for message in messages])
-    model_input = f"{PROMPT_GENERAL}\n{conversation}\nAssistant: "
-    logging.info(f"Model input: \n{model_input}")
-    output = generate_general_call_chatgpt_api(
-        inputs=model_input,
-        temperature=0.5,
-        top_p=0.92,
-        max_tokens=3072,
-    )
-    output = " ".join(output.split())
-    logging.info(f"Model output: \n{output}")
+    output = advisor.ask(messages)
     return output, []
     
 
 if __name__ == "__main__":
     setup_logging_display_only()
-    response, suggestions = ask_assistant(messages=[
-        {"user": "Minh", "content": "I want to ask for financial advice"},
-        {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
-        {"user": "Minh", "content": "Help me create a monthly budget plan"},
+    # response, suggestions = ask_assistant(messages=[
+    #     {"user": "Minh", "content": "I want to ask for financial advice"},
+    #     {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
+    #     {"user": "Minh", "content": "Help me create a monthly budget plan"},
+    # ])
+
+    response, suggestions = general_suggestion(messages=[
+        {"user": "Minh", "content": "Compare Bank of America, Apple, and Google"},
     ])
     logging.info(f"Response: {response}")
+    logging.info(f"Suggestions: {suggestions}")
         

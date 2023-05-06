@@ -9,3 +9,7 @@ python-dotenv
 lingua-language-detector
 pandas
 tabulate
+
+langchain
+google-search-results
+alpha_vantage
