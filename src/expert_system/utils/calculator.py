@@ -16,8 +16,11 @@ def get_income(model_output: str) -> Optional[float]:
     5000000.0
     """
     income = re.search(r"SET_INCOME\[(\d+)\]", model_output)
+    # remove all non-digit characters, e.g. 5,000,000 -> 5000000
     if income:
-        income = float(income.group(1))
+        income = income.group(1)
+        income = re.sub(r"\D", "", income)
+        income = float(income)
         return income
     return None
 
