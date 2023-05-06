@@ -8,6 +8,8 @@ from utils.logger import print, setup_logging_display_only
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import print
 from expert_system.utils.stage import get_current_stage
+from expert_system.utils import calculator
+from expert_system.utils import spreadsheet
 import re
 import logging
 
@@ -30,11 +32,11 @@ def economical_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str
         'Mình muốn biết nếu mình tiết kiệm 20 năm thì sẽ có bao nhiêu'
     ])
     """
-    messages = messages[-3:]
+    messages = messages[-7:]
     
     conversation = "\n".join([f"- {' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
     last_user = messages[-1]['user']
-    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as {{300*20%}} to calculate the result.
+    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as CALCULATE[30000*20/100] to calculate the result.
 
 ## Script:
 ### Stage 1:
@@ -50,20 +52,22 @@ Case 1:
     Analyzing: User is asking about how much time it takes to save 100 million VND.
     Current stage: Stage 2
     - Assistant: Thu nhập hàng tháng của bạn là bao nhiêu?
-    - User: {{user_income}}
-    Analyzing: User's monthly income is {{user_income}}. Recall, user's request is to know how long it takes to save 100 million VND. So, we need to know how much user can save each month. We can calculate it by subtracting the amount of money user wants to save from user's monthly income.
+    - User: 8 triệu đồng
+    Analyzing: User is telling their income SET_INCOME[8000000]. Recall that user's request is how much time it takes to save 100 million VND SET_TARGET_MONEY[100000000].
     Current stage: Stage 3
-    - Assistant: Ok. Dựa trên những thông tin bạn đưa ra, nếu như mỗi tháng bạn dành 10% thu nhập để tiết kiệm, hàng năm bạn được tăng 5% lương và lãi suất tiết kiệm của ngân hàng là 8%. Thì sau khoảng {{time}} thì bạn có thể tiết kiệm được 100 triệu đồng.
+    - Assistant: Ok. Dựa trên những thông tin bạn đưa ra, nếu như mỗi tháng bạn dành 10% thu nhập để tiết kiệm, hàng năm bạn được tăng 5% lương và lãi suất tiết kiệm của ngân hàng là 8%. Thì sau khoảng {{time}} năm thì bạn có thể tiết kiệm được 100 triệu đồng. Bạn có thể tham khảo thêm tại bảng sau:
+    {{INSERT_TABLE}}
 Case 2:
     Expectation: User ask about how much money can be saved in a certain amount of time.
     - User: Mình muốn biết nếu mình tiết kiệm 20 năm thì sẽ có bao nhiêu
     Analyzing: User is asking about how much money can be saved in 20 years.
     Current stage: Stage 2
     - Assistant: Thu nhập hàng tháng của bạn là bao nhiêu?
-    - User: {{user_income}}
-    Analyzing: User's monthly income is {{user_income}}. Recall, user's request is to know how much money can be saved in 20 years. So, we need to know how much user can save each month. We can calculate it by subtracting the amount of money user wants to save from user's monthly income.
+    - User: 8 triệu đồng 
+    Analyzing: User is telling their income SET_INCOME[8000000]. Recall that user's request is how much money can be saved in 20 years SET_TARGET_TIME[20].
     Current stage: Stage 3
-    - Assistant: Ok. Dựa trên những thông tin bạn đưa ra, nếu như mỗi tháng bạn dành 10% thu nhập để tiết kiệm, hàng năm bạn được tăng 5% lương và lãi suất tiết kiệm của ngân hàng là 8%. Thì sau {{time}} bạn sẽ có {{money}}.
+    - Assistant: Ok. Dựa trên những thông tin bạn đưa ra, nếu như mỗi tháng bạn dành 10% thu nhập để tiết kiệm, hàng năm bạn được tăng 5% lương và lãi suất tiết kiệm của ngân hàng là 8%. Thì sau 20 năm bạn sẽ có {{money}}.
+    {{INSERT_TABLE}}
 
 ## Real conversation:
 ...
@@ -94,8 +98,46 @@ Analyzing:"""
     if current_stage == 'Stage 2':
         return response_message, ['5 triệu']
     if current_stage == 'Stage 3':
+        income = calculator.get_income(output)
+        print(f"income: {income}")
+        if not income:
+            logging.warning(f"Cannot get income from model output: {output}")
+        
+        target_money = extract_target_money(output)
+        print(f"target_money: {target_money}")
+        target_time = extract_target_time(output)
+        print(f"target_time: {target_time}")
+        
+        if target_money and target_time:
+            logging.warning(f"Both target money and target time are extracted from model output: {output}")
+            return response_message, []
+        
+        # case 1
+        res, economical_table = spreadsheet.calculate_economical_table(income=income, target_money=target_money, target_time=target_time)
+            
+        if target_money:
+            # replace '{{time}}' with res['time']
+            response_message = response_message.replace('{time}', res['time'])
+        if target_time:
+            # replace '{{money}}' with res['money']
+            response_message = response_message.replace('{money}', res['money'])
+            
+        # replace {{INSERT_TABLE}} with economical_table
+        response_message = response_message.replace('{INSERT_TABLE}', economical_table)
+
         return response_message, []
 
+def extract_target_money(output):
+    target_money = re.search(r'SET_TARGET_MONEY\[(\d+)\]', output)
+    if target_money:
+        return target_money.group(1)
+    return None
+
+def extract_target_time(output):
+    target_time = re.search(r'SET_TARGET_TIME\[(\d+)\]', output)
+    if target_time:
+        return target_time.group(1)
+    return None
             
 
 if __name__ == "__main__":
