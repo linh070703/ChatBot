@@ -18,7 +18,7 @@ import re
 import logging
 
 from src.utils.logger import setup_logging, pprint, print
-from src.models.action import get_action_params
+from src.models.action import ensemble_get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant, match_question
 from src.models.response_message import get_response_message
@@ -292,7 +292,7 @@ def chat():
             }
         }
     elif intention == 'TRANSFER':
-        payload = get_action_params(messages, action='TRANSFER')
+        payload = ensemble_get_action_params(messages, action='TRANSFER')
         if isinstance(payload, dict):
             res = {
                 'action': {
@@ -315,7 +315,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'TRANSFER_TO_EACH_USERS':
-        payload = get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
+        payload = ensemble_get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
         if isinstance(payload, dict):
             res = {
                 'action': {
@@ -338,7 +338,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'CREATE_CHAT_GROUP':
-        payload = get_action_params(messages, action='CREATE_CHAT_GROUP')
+        payload = ensemble_get_action_params(messages, action='CREATE_CHAT_GROUP')
         if isinstance(payload, dict):
             res = {
                 'action': {

@@ -5,8 +5,57 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, pprint, print
+import threading
 import logging
 import re
+import json
+
+def ensemble_get_action_params(
+        messages: List[Dict[str, str]],
+        action: Literal["TRANSFER", "CREATE_CHAT_GROUP", "TRANSFER_TO_EACH_USERS"],
+        ensemble_size: int = 3,
+    ) -> Union[Dict[str, str], str]:
+
+    # try 3 times, because there will be time will raise error
+    # results = []
+    # for i in range(ensemble_size):
+    #     try:
+    #         results.append(get_action_params(messages, action))
+    #     except Exception as e:
+    #         logging.error(e)
+    #         continue
+    # if len(results) == 0:
+    #     raise Exception("Cannot get action params")
+    results = []
+    threads = []
+    for i in range(ensemble_size):
+        def _get_action_params():
+            try:
+                results.append(get_action_params(messages, action))
+            except Exception as e:
+                logging.error(e)
+        thread = threading.Thread(target=_get_action_params)
+        thread.start()
+        threads.append(thread)
+    for thread in threads:
+        thread.join()
+
+    # filter out None
+    results = [result for result in results if result is not None]
+
+    if len(results) == 0:
+        raise Exception("Cannot get action params")
+    
+    # get most common result
+    # make sure results hashable using json
+    logging.info(f"All {ensemble_size} results: {results}")
+    hash_results = [json.dumps(result, sort_keys=True) for result in results]
+    result = max(set(hash_results), key=hash_results.count)
+    result = json.loads(result)
+    logging.info(f"Most common result: {result}")
+    
+    return result
+    
 
 def get_action_params(
         messages: List[Dict[str, str]],
@@ -89,9 +138,10 @@ REASONING:"""
         msg = action_params.split("[")[1].split("|")[1:]
         msg = "|".join(msg).split("]")[0].strip()
         if msg.lower() == "null" or msg.lower() == "none" or msg == "":
-            # raise Exception("Transaction message is empty")
-            logging.warning("Transaction message is empty (rare case), using default message")
-            return "Bạn cần nhập thêm nội dung chuyển khoản."
+            # bad case
+            raise Exception("Transaction message is empty")
+            # logging.warning("Transaction message is empty (rare case), using default message")
+            # return "Bạn cần nhập thêm nội dung chuyển khoản."
         else:
             params["msg"] = msg
 
@@ -177,10 +227,10 @@ if __name__ == "__main__":
         # {"user": "Lan", "content": "Ready for a party?"},
         # {"user": "Minh", "content": "Yes, I am ready."},
         # {"user": "Minh", "content": "I want to transfer 3289723 VND to Hung."},
-        # {"user": "Cường", "content": "Chuyển quà sinh nhật mỗi cháu 400k"},
+        {"user": "Cường", "content": "Chuyển tiền mỗi cháu 400k"},
         # {"user": "Minh", "content": "Chuyển Alisa ba chục nghìn tiền bún đậu"},
         # {"user": "Minh", "content": "I want to transfer 3289723 VND to Hung với lời nhắn là 'Chúc mừng sinh nhật nhé, nhớ học giỏi'."},
-        {"user": "Hung", "content": "I want to create a chat group for Minh, me, Lan, and Cường for this birthday."},
+        # {"user": "Hung", "content": "I want to create a chat group for Minh, me, Lan, and Cường for this birthday."},
     ], action="CREATE_CHAT_GROUP")
     print("Output: ", out)
         
