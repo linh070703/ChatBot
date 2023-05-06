@@ -71,7 +71,7 @@ def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, Li
     
     conversation = "\n".join([f"- {' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
     last_user = messages[-1]['user']
-    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as CALCULATE[30000*20%] to calculate the result.
+    model_input = f"""This is a Personal Finance Assistant system that can provide user advices based on the pre-defined script. English and Vietnamese are supported. There are 3 stages in total. After user's request, system will display the current stage of the conversation, followed by "Analyzing: " no more than 100 words. Finally, system will response to the user as in pre-defined script. If user's message intention is not match the response expectation in the pre-defined script, system will display the current stage of the conversation as "BREAK" and end the conversation. System can use calculator syntax as CALCULATE[30000*20/100] to calculate the result.
 
 ## Script:
 ### Stage 1:
