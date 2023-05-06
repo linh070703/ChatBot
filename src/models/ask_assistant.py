@@ -6,6 +6,7 @@ import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
+from models.translator import convert_answer_language_to_same_as_question
 import logging
 from expert_system import loan, money_management, economical
 
@@ -42,6 +43,25 @@ How can I help you today?
 Tôi có thể giúp gì cho bạn hôm nay?
 """
 
+def match_question(messages) -> Tuple[Union[str, None], List[str]]:
+    response = None
+    suggestions = None
+    # message: str = messages[-1]["content"]
+    
+    # message = convert_answer_language_to_same_as_question(question="Tiếng Việt", answer=message)
+    # messages
+    
+    if money_management.is_money_management_question(messages):
+        logging.info("Money management question detected")
+        return money_management.money_management_suggestion(messages)
+    elif economical.is_economical_question(messages):
+        logging.info("Economical question detected")
+        return economical.economical_suggestion(messages)
+    # elif loan.is_loan_question(message):
+    #     response, suggestions = loan.loan_suggestion(messages)
+
+    logging.info("No pre-defined question matched")
+    return response, suggestions
 
 def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
@@ -92,16 +112,16 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
             "Tôi muốn tạo nhóm chat với Hùng và Cường",
             "Tôi muốn được tư vấn tài chính"
         ]
+    
+    response, suggestions = match_question(messages)
 
-    message: str = messages[-1]["content"]
-    if money_management.is_money_management_question(message):
-        return money_management.money_management_suggestion(messages)
-    elif economical.is_economical_question(message):
-        return economical.economical_suggestion(messages)
-    elif loan.is_loan_question(message):
-        return loan.loan_suggestion(messages)
+
+    if response is not None:
+        return response, suggestions
     else:
+        # above cases all failed
         return general_suggestion(messages)
+
 
 def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
@@ -124,7 +144,7 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
 
 if __name__ == "__main__":
     setup_logging_display_only()
-    response, suggestions = general_suggestion(messages=[
+    response, suggestions = ask_assistant(messages=[
         {"user": "Minh", "content": "I want to ask for financial advice"},
         {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
         {"user": "Minh", "content": "Help me create a monthly budget plan"},

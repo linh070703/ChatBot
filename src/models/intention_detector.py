@@ -3,7 +3,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from typing import List, Literal, Dict, Union, Any, Tuple
-from utils.model_api import generate_action_chatgpt_api
+from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
 import logging
 
@@ -36,7 +36,13 @@ def dectect_user_intention(
     last_user = messages[-1]['user']
     model_input = f"{PROMPT}\n{conversation}\n{last_user}'s intention: "
     logging.info(f"Model input: \n{model_input}")
-    output = generate_action_chatgpt_api(model_input)
+    output = generate_general_call_chatgpt_api(
+        inputs=model_input,
+        temperature=0,
+        top_p=1.0,
+        max_tokens=12,
+        stop=(r"]",),
+    )
     intent = " ".join(output.split()).strip()
     assert intent in ["CHECK_BALANCE", "TRANSFER", "TRANSFER_TO_EACH_USERS", "CREATE_CHAT_GROUP", "ASK_ASSISTANT", "NO_SYSTEM_ACTION"], f"Invalid intent: {intent}"
     return intent
