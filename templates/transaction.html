@@ -79,7 +79,8 @@
 	</head>
 	<body>
 		<div id="container">
-			<h2 id="title">Transaction Overview in 05/2023</h2>
+			<!-- get title and replace - to / -->
+			<h2 id="title">Transaction Overview in {{date.replace('-', '/')}}</h2>
 			<div class="info-container">
 				<div class="left">
 
@@ -92,78 +93,18 @@
 							<th>Category</th>
 							<th>Time</th>
 						</tr>
-						<tr>
-							<td>1</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>thaiminh</td>
-							<td>30.000</td>
-							<td>Tiền ăn trưa</td>
-							<td>Food</td>
-							<td>12:00 05/05/2023</td>
-						</tr>
+						<!-- for transactions and render in reverse -->
+						{% for transaction in transactions[::-1] %}
+							<tr>
+								<td>{{loop.index}}</td>
+								<td>{{transaction.to}}</td>
+								<td>{{transaction.amount}}</td>
+								<td>{{transaction.message}}</td>
+								<td>{{transaction.category}}</td>
+								<!-- format like 12:00 05/05/2023 -->
+								<td>{{transaction.timestamp.strftime('%H:%M %d/%m/%Y')}}</td>
+							</tr>
+						{% endfor %}
 					</table>
 				</div>
 				<div class="right">
