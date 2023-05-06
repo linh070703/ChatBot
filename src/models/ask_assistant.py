@@ -132,7 +132,7 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     Suggest general advice
     """
     messages = messages[-4:]
-    output = advisor.ask(messages[-1])
+    output = advisor.ask(messages)
     return output, []
     
 

@@ -63,7 +63,9 @@ agent = initialize_agent(
 
 print(agent.agent.llm_chain.prompt.template)
 
-def ask(question: str) -> str:
+def ask(messages: List[Dict[str, str]]) -> str:
+    question = messages[-1]['content']
+    print(f"Question: {question}")
     answer = agent.run(question)
     print(f"Type of answer: {type(answer)}")
     if isinstance(answer, tuple) and len(answer) > 0 and answer[0] is not None and answer[0] == 'Get Top Portfolios':
