@@ -82,6 +82,7 @@ def chat():
                 params: {
                     "receiver": "Minh",
                     "amount": "300000",
+                    "category": "Food",
                     "msg": null
                 }
             }
@@ -93,14 +94,14 @@ def chat():
     ...         {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."},
     ...     ]
     ... }).json()
-    {'action': {'command': 'TRANSFER', 'params': {'receiver': 'Minh', 'amount': '300000', 'msg': None}}}
+    {'action': {'command': 'TRANSFER', 'params': {'receiver': 'Minh', 'amount': '300000', 'msg': None, 'category': 'Food'}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
     ...         {"user": "Cuong", "content": "Tao muốn chuyển mỗi đứa 800k tiền mừng năm mới."},
     ...     ]
     ... }).json()
-    {'action': {'command': 'TRANSFER_TO_EACH_USERS', 'params': {'amount_each': '800000', 'msg': 'tiền mừng năm mới'}}}
+    {'action': {'command': 'TRANSFER_TO_EACH_USERS', 'params': {'amount_each': '800000', 'msg': 'tiền mừng năm mới', 'category': 'Food'}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
