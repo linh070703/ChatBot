@@ -24,11 +24,11 @@ cred = credentials.Certificate("./firebase.json")
 firebase_admin.initialize_app(cred)
 
 from src.utils.logger import setup_logging, pprint, print
-from src.models.action import get_action_params
+from src.models.action import ensemble_get_action_params
 from src.models.intention_detector import dectect_user_intention
-from src.models.ask_assistant import ask_assistant
+from src.models.ask_assistant import ask_assistant, match_question
 from src.models.response_message import get_response_message
-from src.models.translator import convert_answer_language_to_same_as_question
+from src.models.translator import convert_answer_language_to_same_as_question, answer_I_dont_know_multilingual, batch_convert_answer_language_to_same_as_question
 
 from src.charts.chart import chart
 
@@ -64,6 +64,7 @@ def chat():
                 params: {
                     "receiver": "Minh",
                     "amount": "300000",
+                    "category": "Food",
                     "msg": null
                 }
             }
@@ -75,14 +76,14 @@ def chat():
     ...         {"user": "Cuong", "content": "Hi, I want to transfer 300k to Minh."},
     ...     ]
     ... }).json()
-    {'action': {'command': 'TRANSFER', 'params': {'receiver': 'Minh', 'amount': '300000', 'msg': None}}}
+    {'action': {'command': 'TRANSFER', 'params': {'receiver': 'Minh', 'amount': '300000', 'msg': None, 'category': 'Food'}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
     ...         {"user": "Cuong", "content": "Tao muốn chuyển mỗi đứa 800k tiền mừng năm mới."},
     ...     ]
     ... }).json()
-    {'action': {'command': 'TRANSFER_TO_EACH_USERS', 'params': {'amount_each': '800000', 'msg': 'tiền mừng năm mới'}}}
+    {'action': {'command': 'TRANSFER_TO_EACH_USERS', 'params': {'amount_each': '800000', 'msg': 'tiền mừng năm mới', 'category': 'Food'}}}
 
     >>> requests.post('http://localhost:5000/api/chat', json={
     ...     "messages": [
@@ -196,7 +197,7 @@ def chat():
     
     if stream:
         return jsonify({'error': 'Stream mode is not supported.'}), 400
-    if not messages:
+    if not messages or messages[-1]['content'].strip() == '':
         bot_response, suggestions = ask_assistant(messages)
         return jsonify({
             'message': {
@@ -217,10 +218,28 @@ def chat():
     logging.info(f"Intention: {intention}")
 
     if intention == 'NO_SYSTEM_ACTION':
+        bot_response, suggestions = match_question(messages)
+
+        if bot_response:
+            return jsonify({
+                'message': {
+                    'role': 'assistant', 'content': bot_response
+                },
+                'action': {
+                    'command': 'ASK_ASSISTANT',
+                    'params': {}
+                },
+                'suggestions': suggestions
+            })
+
         return jsonify({
             'action': {
                 'command': 'NO_ACTION',
                 'params': {}
+            },
+            'message': {
+                'role': 'assistant',
+                'content': answer_I_dont_know_multilingual(messages)
             }
         })
     
@@ -228,9 +247,6 @@ def chat():
         bot_response, suggestions = ask_assistant(messages)
         
         logging.info(f"Bot_response: {bot_response}")
-
-        bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-        suggestions = [convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=suggestion) for suggestion in suggestions]
 
         res = {
             'message': {
@@ -252,7 +268,7 @@ def chat():
             }
         }
     elif intention == 'TRANSFER':
-        payload = get_action_params(messages, action='TRANSFER')
+        payload = ensemble_get_action_params(messages, action='TRANSFER')
         if isinstance(payload, dict):
             res = {
                 'action': {
@@ -275,7 +291,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'TRANSFER_TO_EACH_USERS':
-        payload = get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
+        payload = ensemble_get_action_params(messages, action='TRANSFER_TO_EACH_USERS')
         if isinstance(payload, dict):
             res = {
                 'action': {
@@ -298,7 +314,7 @@ def chat():
                 'suggestions': []
             }
     elif intention == 'CREATE_CHAT_GROUP':
-        payload = get_action_params(messages, action='CREATE_CHAT_GROUP')
+        payload = ensemble_get_action_params(messages, action='CREATE_CHAT_GROUP')
         if isinstance(payload, dict):
             res = {
                 'action': {
@@ -320,6 +336,15 @@ def chat():
                 },
                 'suggestions': []
             }
+    elif intention == 'VIEW_USER_ACCOUNT_REPORT':
+        res = {
+            'action': {
+                'command': 'VIEW_USER_ACCOUNT_REPORT',
+                'params': {
+                    'user': messages[-1]['user']
+                }
+            }
+        }
     else:
         raise Exception(f"Unknown intention: {intention}")
     

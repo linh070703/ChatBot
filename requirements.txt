@@ -6,4 +6,10 @@ waitress
 requests
 openai
 python-dotenv
-langdetect
+lingua-language-detector
+pandas
+tabulate
+
+langchain
+google-search-results
+alpha_vantage
