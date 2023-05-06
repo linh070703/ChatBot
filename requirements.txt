@@ -12,3 +12,4 @@ tabulate
 
 langchain
 google-search-results
+alpha_vantage
