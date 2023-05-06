@@ -1,8 +1,8 @@
 from typing import List, Dict, Any, Union, Literal, Tuple, Optional
 from lingua import Language, LanguageDetectorBuilder
 from functools import lru_cache
-from utils.model_api import generate_general_call_chatgpt_api
-from utils.logger import logging, print
+from src.utils.model_api import generate_general_call_chatgpt_api
+from src.utils.logger import logging, print
 import threading
 
 # detector = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
@@ -14,6 +14,9 @@ detector = LanguageDetectorBuilder.from_languages(
     # Language.RUSSIAN, Language.PORTUGUESE, Language.ITALIAN, Language.TURKISH,
     # Language.DUTCH, Language.POLISH, Language.SWEDISH, Language.DANISH,
 ).with_preloaded_language_models().build()
+
+def detect_language_of(text: str) -> str:
+    return detector.detect_language_of(text).name
 
 @lru_cache(maxsize=256)
 def translate(text: str, src="vi", dest="en") -> str:
