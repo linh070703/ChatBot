@@ -8,3 +8,4 @@ openai
 python-dotenv
 lingua-language-detector
 pandas
+tabulate

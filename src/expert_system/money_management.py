@@ -101,7 +101,7 @@ Analyzing:"""
     output = generate_general_call_chatgpt_api(
         inputs=model_input,
         temperature=0,
-        max_tokens=256,
+        max_tokens=512,
         stop=(f'- {last_user}:',)
     )
     logging.info(f"Model output: \n{output}")

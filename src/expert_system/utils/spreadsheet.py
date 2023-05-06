@@ -43,8 +43,10 @@ def calculate_economical_table(
         # get last row
         last_row = df.iloc[-1]
         time = last_row["Số năm"]
+        money = last_row["Tổng lượng tiết kiệm"]
         return {
             'time': time,
+            'money': money,
         }, table
             
     
@@ -110,6 +112,7 @@ def _calculate_economical_table(
     economical_table["Lượng tiết kiệm mỗi năm"] = economical_table["Lượng tiết kiệm mỗi năm"].apply(format_vnd)
     economical_table["Tổng lượng tiết kiệm"] = economical_table["Tổng lượng tiết kiệm"].apply(format_vnd)
     economical_table["Lãi suất tiết kiệm của ngân hàng"] = economical_table["Lãi suất tiết kiệm của ngân hàng"].apply(format_vnd)
+    print(economical_table)
     return economical_table
 
 if __name__ == "__main__":

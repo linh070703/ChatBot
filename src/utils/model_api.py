@@ -90,10 +90,13 @@ def generate_general_call_chatgpt_api(
         params['stop'] = stop
 
     params['max_tokens'] = max_tokens
-    response = openai.Completion.create(
+    res = openai.Completion.create(
         model="text-davinci-003",
         prompt=inputs,
         **params,
         api_key=next(api_keys_cycle),
-    )['choices'][0]['text']
+    )
+    # stop reason
+    logging.info(f"stop reason: {res['choices'][0]['finish_reason']}")
+    response = res['choices'][0]['text']
     return response
