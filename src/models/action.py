@@ -239,6 +239,27 @@ REASONING:"""
             raise Exception("Transaction message is empty")
         else:
             params["msg"] = msg
+
+        message = messages[-1]
+        # category
+        model_input = f"""This is a financial assistant system that can detect the category of transaction when user request. System should devide transaction into 5 categories: Food, Shopping, Entertainment, Utility, and Other.
+        User: {message['content']}
+        System action: {params}
+        Category: """
+        logging.info(f"Model input: \n{model_input}")
+        output = generate_general_call_chatgpt_api(
+            inputs=model_input,
+            temperature=0,
+            max_tokens=4,
+        )
+        logging.info(f"Model output: \n{output}")
+        category = " ".join(output.split())
+        params["category"] = category
+        logging.info(f"Categorize transaction: {category}")
+        if category not in ["Food", "Shopping", "Entertainment", "Utility", "Other"]:
+            logging.warning(f"Invalid category: {category}")
+            params["category"] = "Other"
+        return params
     return params
 
 
