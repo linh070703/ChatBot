@@ -22,7 +22,7 @@ from src.models.action import get_action_params
 from src.models.intention_detector import dectect_user_intention
 from src.models.ask_assistant import ask_assistant, match_question
 from src.models.response_message import get_response_message
-from src.models.translator import convert_answer_language_to_same_as_question, answer_I_dont_know_multilingual
+from src.models.translator import convert_answer_language_to_same_as_question, answer_I_dont_know_multilingual, batch_convert_answer_language_to_same_as_question
 
 from src.charts.compare import get_compare_chart_data
 from src.charts.earnings import get_earnings_chart_data
@@ -239,7 +239,8 @@ def chat():
 
         if bot_response:
             bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-            suggestions = [convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=suggestion) for suggestion in suggestions]
+            # suggestions = [convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=suggestion) for suggestion in suggestions]
+            suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
 
             return jsonify({
                 'message': {

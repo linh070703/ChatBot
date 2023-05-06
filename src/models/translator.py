@@ -3,6 +3,7 @@ from lingua import Language, LanguageDetectorBuilder
 from functools import lru_cache
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import logging, print
+import threading
 
 # detector = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
 detector = LanguageDetectorBuilder.from_languages(
@@ -66,6 +67,44 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
         logging.info(f"Answer language: {answer_lang}")
         logging.info(f"Translating answer to {question_lang}...")
         return translate(answer, src=answer_lang, dest=question_lang)
+
+def batch_convert_answer_language_to_same_as_question(question: str, answers: List[str]) -> List[str]:
+    """
+    Convert language of answer to same as question's language.
+    If answer language is already matched with question language, return answer unchanged.
+    In parralel
+
+    Args:
+        question (str): question
+        answers (List[str]): list of answers
+        
+    Returns:
+        List[str]: list of answers
+    """
+    question_lang = detector.detect_language_of(question).name
+    answer_langs = [detector.detect_language_of(answer).name for answer in answers]
+    answers = [translate_currency(answer, src=answer_lang) for answer, answer_lang in zip(answers, answer_langs)]
+    if any([question_lang == answer_lang for answer_lang in answer_langs]):
+        logging.info(f"Question and answer language are the same ({question_lang}). No need to translate.")
+        return answers
+    else:
+        logging.info(f"Question language: {question_lang}")
+        logging.info(f"Answer languages: {answer_langs}")
+        logging.info(f"Translating answers to {question_lang}...")
+        results = []
+        threads = []
+        for answer, answer_lang in zip(answers, answer_langs):
+            def _translate(answer, answer_lang, results):
+                results.append(translate(answer, src=answer_lang, dest=question_lang))
+            t = threading.Thread(target=_translate, args=(answer, answer_lang, results))
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+        
+        return results
+
     
 def translate_currency(currency: str, src="ENGLISH") -> str:
     """
