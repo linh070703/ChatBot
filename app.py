@@ -16,6 +16,8 @@ import sys
 import requests
 import re
 import logging
+import firebase_admin
+from firebase_admin import credentials
 
 from src.utils.logger import setup_logging, pprint, print
 from src.models.action import get_action_params
@@ -33,6 +35,10 @@ app.register_blueprint(chart, url_prefix='/chart')
 
 CORS(app)
 setup_logging('app.log')
+
+# Setup firebase
+cred = credentials.Certificate("./firebase.json")
+firebase_admin.initialize_app(cred)
 
 # check health
 @app.route('/health', methods=['GET'])

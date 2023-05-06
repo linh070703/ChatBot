@@ -134,3 +134,5 @@ pyllamacpp/
 *.model
 # models/
 bigscience/
+
+firebase.json
