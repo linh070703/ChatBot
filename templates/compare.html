@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Compare Chart</title>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+		<style>
+			.card {
+				/* border: 1px solid #ccc; */
+				/* padding: 10px; */
+				display: flex;
+				align-items: center;
+
+				height: 200px;
+			}
+
+			.card-header {
+				margin-right: 10px;
+				background-color: #DBE3F0;
+				height: 100%;
+				
+				display: flex;
+				align-items: center;
+				
+				flex-shrink: 0;
+				border-radius: 10px;
+			}
+
+			.card-header h2 {
+				margin: 0;
+				display: inline-block;
+
+				writing-mode: vertical-rl;
+				text-orientation: mixed;
+
+				padding: 15px;
+				font-weight: 400;
+				font-size: 18px;
+				font-family: sans-serif;
+
+				color: #6E829B;
+			}
+
+			.card-body {
+				flex: 1;
+
+				height: 100%;
+				width: 100%;
+			}
+
+			#container {
+				width: 964px;
+				height: 482px;
+				margin: 0 auto;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container">
+			<div class="card">
+				<div class="card-header">
+					<h2>VOLATILITY</h2>
+				</div>
+				<div class="card-body">
+					<canvas id="chart-volatility"></canvas>
+				</div>
+			</div>
+			<div class="card" style="margin-top: 20px;">
+				<div class="card-header">
+					<h2>RETURN</h2>
+				</div>
+				<div class="card-body">
+					<canvas id="chart-returm"></canvas>
+				</div>
+			</div>
+		</div>
+	</body>
+
+	<script>
+		// Gen bar chat with three column
+		const ctx = document.getElementById('chart-volatility').getContext('2d');
+		Chart.register(ChartDataLabels);
+
+		const myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Q1', 'Q2', 'Q3'],
+                    datasets: [{
+                        // label: '{{ chart_title }}',
+                        label: 'Reported EPS',
+                        data: [4, 6, 8],
+                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1,
+						maxBarThickness: 75,
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+					responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false
+                            }
+                        }],
+                    },
+					plugins: {
+						datalabels: {
+							anchor: 'end',
+							align: 'top',
+							font: {
+								weight: 'bold'
+							}
+						}
+					}
+                }
+            });
+	</script>
+</html>
