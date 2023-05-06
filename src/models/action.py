@@ -83,6 +83,7 @@ def get_action_params(
             "receiver": "Nam",
             "amount": "6966000",
             "msg": "bún đậu",
+            "category": "food",
         }
         >>> messages = [    
         ...     {"user": "Minh", "content": "Chuyển mỗi người 100k."},
@@ -144,6 +145,24 @@ REASONING:"""
             # return "Bạn cần nhập thêm nội dung chuyển khoản."
         else:
             params["msg"] = msg
+        
+        message = messages[-1]
+        # category
+        model_input = f"""This is a financial assistant system that can detect the category of transaction when user request. System should devide transaction into 5 categories: Food, Shopping, Entertainment, Utility, and Other.
+        User: {message['content']}
+        System action: {params}
+        Category: """
+        logging.info(f"Model input: \n{model_input}")
+        output = generate_general_call_chatgpt_api(
+            inputs=model_input,
+            temperature=0,
+            max_tokens=4,
+        )
+        logging.info(f"Model output: \n{output}")
+        category = " ".join(output.split())
+        params["category"] = category
+        logging.info(f"Categorize transaction: {category}")
+        return params
 
     elif action == "CREATE_CHAT_GROUP":
         conversation = "\n".join([f"{' '.join(message['user'].split())}: {' '.join(message['content'].split())}" for message in messages])
