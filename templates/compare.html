@@ -12,7 +12,7 @@
 				display: flex;
 				align-items: center;
 
-				height: 200px;
+				height: 240px;
 			}
 
 			.card-header {
@@ -54,10 +54,18 @@
 				height: 482px;
 				margin: 0 auto;
 			}
+
+			h2 {
+                text-align: center;
+				font-family: 'Courier New', Courier, monospaces;
+            }
 		</style>
 	</head>
 	<body>
 		<div id="container">
+			<h2>
+				{{ chart_title }}
+			</h2>
 			<div class="card">
 				<div class="card-header">
 					<h2>VOLATILITY</h2>
@@ -66,7 +74,7 @@
 					<canvas id="chart-volatility"></canvas>
 				</div>
 			</div>
-			<div class="card" style="margin-top: 20px;">
+			<div class="card" style="margin-top: 25px;">
 				<div class="card-header">
 					<h2>RETURN</h2>
 				</div>
@@ -78,20 +86,22 @@
 	</body>
 
 	<script>
-		// Gen bar chat with three column
-		const ctx = document.getElementById('chart-volatility').getContext('2d');
 		Chart.register(ChartDataLabels);
 
-		const myChart = new Chart(ctx, {
+		const backgroundColors = {{ colors|tojson }};
+		const borderColors = backgroundColors.map(el => el.replace('0.5', '1'));
+
+		const ctxVolatility = document.getElementById('chart-volatility').getContext('2d');
+		const volatilityChart = new Chart(ctxVolatility, {
                 type: 'bar',
                 data: {
-                    labels: ['Q1', 'Q2', 'Q3'],
+                    labels: {{ symbols|tojson }},
                     datasets: [{
                         // label: '{{ chart_title }}',
-                        label: 'Reported EPS',
-                        data: [4, 6, 8],
-                        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                        borderColor: 'rgba(255, 99, 132, 1)',
+                        label: 'Volatility',
+                        data: {{ volatilitys|tojson }},
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
                         borderWidth: 1,
 						maxBarThickness: 75,
                     }]
@@ -110,6 +120,43 @@
 						datalabels: {
 							anchor: 'end',
 							align: 'top',
+							font: {
+								weight: 'bold'
+							}
+						}
+					}
+                }
+            });
+
+			const ctxReturm = document.getElementById('chart-returm').getContext('2d');
+			const returnChart = new Chart(ctxReturm, {
+                type: 'bar',
+                data: {
+                    labels: {{ symbols|tojson }},
+                    datasets: [{
+                        // label: '{{ chart_title }}',
+                        label: 'Returm',
+                        data: {{ returns|tojson }},
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1,
+						maxBarThickness: 75,
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false,
+					responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: false
+                            }
+                        }],
+                    },
+					plugins: {
+						datalabels: {
+							anchor: 'end',
+							align: 'bottom',
 							font: {
 								weight: 'bold'
 							}

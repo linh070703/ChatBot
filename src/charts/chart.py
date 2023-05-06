@@ -3,6 +3,7 @@ from flask import (
     render_template,
     request
 )
+import random
 
 from src.charts.utils.get_compare_metrics import get_compare_metrics
 from src.charts.utils.get_earning_data import get_earning_data
@@ -12,14 +13,40 @@ chart = Blueprint('chart', __name__)
 @chart.route('/compare', methods=['GET'])
 def compare():
     symbols = request.args.get('symbols').split(',')
+    # convert to rgba with 0.5 alpha
+    colors = [
+        'rgba(158, 1, 66, 0.5)',
+        'rgba(213, 62, 79, 0.5)',
+        'rgba(244, 109, 67, 0.5)',
+        'rgba(253, 174, 97, 0.5)',
+        'rgba(254, 224, 139, 0.5)',
+        'rgba(230, 245, 152, 0.5)',
+        'rgba(171, 221, 164, 0.5)',
+        'rgba(102, 194, 165, 0.5)',
+        'rgba(50, 136, 189, 0.5)',
+        'rgba(94, 79, 162, 0.5)',
+    ]
 
-    metrics = {}
+    # metrics = {}
+    volatilitys = []
+    returns = []
     for symbol in symbols:
-        metrics[symbol] = get_compare_metrics(symbol)
+        metric = get_compare_metrics(symbol)
 
-    print(metrics)
+        if metric is not None:
+            volatilitys.append(metric['volatility'])
+            returns.append(metric['return'])
+        else:
+            volatilitys.append(0)
+            returns.append(0)
 
-    return render_template('iframe.html')
+    random.shuffle(colors)
+    colors = colors[:len(symbols)]
+    # suffle colors
+
+    chart_title = 'Compare of ' + ', '.join(symbols)
+
+    return render_template('compare.html', volatilitys=volatilitys, returns=returns, symbols=symbols, colors=colors, chart_title=chart_title)
 
 
 @chart.route('/earning-bar', methods=['GET'])
