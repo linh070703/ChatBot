@@ -1,12 +1,4 @@
-import firebase_admin
-from firebase_admin import credentials
-
-
 from firebase_admin import firestore
-from datetime import datetime
-
-cred = credentials.Certificate("./firebase.json")
-firebase_admin.initialize_app(cred)
 
 db = firestore.client()
 
@@ -32,5 +24,3 @@ def get_trasactions(user, month, year):
 		output.append(data)
 
 	return output
-	
-print(get_trasactions('dinhanh', 5, 2023))
