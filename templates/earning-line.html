@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Earnings Chart</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<!-- <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script> -->
+        <style>
+            h2 {
+                text-align: center;
+            }
+			#chart-container {
+				width:964px;
+				height:482px;
+
+				/* center div */
+				/* display: inline; */
+				margin: 0 auto;
+			}
+        </style>
+    </head>
+    <body>
+        <h2>Quarterly Earnings Per Share - ({{ symbol|upper }})
+		</h2>
+		<div id="chart-container">
+			<canvas id="chart"></canvas>
+		</div>
+        <script>
+            const ctx = document.getElementById('chart').getContext('2d');
+            const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: {{ labels|tojson }},
+                    datasets: [{
+                        // label: '{{ chart_title }}',
+                        label: 'Reported EPS',
+                        data: {{ reportedEPS|tojson }},
+                        // backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                        // borderColor: 'rgba(255, 99, 132, 1)',
+                        // borderWidth: 1
+						fill: false,
+    					tension: 0.1
+                    }]
+                },
+                options: {
+                    // maintainAspectRatio: false,
+					// responsive: true,
+                    scales: {
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+        </script>
+    </body>
+</html>
