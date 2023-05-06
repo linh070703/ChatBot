@@ -120,12 +120,13 @@ Analyzing:"""
             # replace 'GET_TIME[\d+]' with res['time']
             # response_message = response_message.replace('GET_TIME[]', f"{res['time']}:.2f")
             # response_message = response_message.replace('GET_MONEY[]', f"{res['money']}:.2f")
-            response_message = re.sub(r'GET_TIME\[\d*\]', f"{res['time']}", response_message)
-            response_message = re.sub(r'GET_MONEY\[\d*\]', f"{res['money']}", response_message)
+            response_message = re.sub(r'GET_TIME\[[\d\.\,\s]*\]', f"{res['time']}", response_message)
+            response_message = re.sub(r'GET_MONEY\[[\d\.\,\s]*\]', f"{res['money']}", response_message)
         if target_time:
             # replace '{{money}}' with res['money']
             # response_message = response_message.replace('GET_MONEY[]', calculator.format_vnd(res['money']))
-            response_message = re.sub(r'GET_MONEY\[\d*\]', f"{res['money']}", response_message)
+            response_message = re.sub(r'GET_TIME\[[\d\.\,\s]*\]', f"{int(target_time)}", response_message)
+            response_message = re.sub(r'GET_MONEY\[[\d\.\,\s]*\]', f"{res['money']}", response_message)
             
         # replace {{INSERT_TABLE}} with economical_table
         response_message = response_message.replace('INSERT_TABLE[]', economical_table)
