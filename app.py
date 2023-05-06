@@ -215,9 +215,6 @@ def chat():
         bot_response, suggestions = match_question(messages)
 
         if bot_response:
-            bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-            suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
-
             return jsonify({
                 'message': {
                     'role': 'assistant', 'content': bot_response
@@ -244,9 +241,6 @@ def chat():
         bot_response, suggestions = ask_assistant(messages)
         
         logging.info(f"Bot_response: {bot_response}")
-
-        bot_response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=bot_response)
-        suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
 
         res = {
             'message': {

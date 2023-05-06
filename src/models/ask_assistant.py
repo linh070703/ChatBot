@@ -6,7 +6,7 @@ import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
-from models.translator import convert_answer_language_to_same_as_question
+from models.translator import convert_answer_language_to_same_as_question, batch_convert_answer_language_to_same_as_question
 import logging
 from expert_system import loan, money_management, economical
 from models.langchain import advisor
@@ -54,14 +54,18 @@ def match_question(messages) -> Tuple[Union[str, None], List[str]]:
     
     if money_management.is_money_management_question(messages):
         logging.info("Money management question detected")
-        return money_management.money_management_suggestion(messages)
+        response, suggestions = money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(messages):
         logging.info("Economical question detected")
-        return economical.economical_suggestion(messages)
+        response, suggestions = economical.economical_suggestion(messages)
     # elif loan.is_loan_question(message):
     #     response, suggestions = loan.loan_suggestion(messages)
 
     logging.info("No pre-defined question matched")
+    if response is not None:
+        response = convert_answer_language_to_same_as_question(question=messages[-1]['content'], answer=response)
+        suggestions = batch_convert_answer_language_to_same_as_question(question=messages[-1]['content'], answers=suggestions)
+
     return response, suggestions
 
 def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
@@ -115,7 +119,6 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
         ]
     
     response, suggestions = match_question(messages)
-
 
     if response is not None:
         return response, suggestions
