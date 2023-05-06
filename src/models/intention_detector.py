@@ -54,15 +54,14 @@ def dectect_user_intention(
 {last_user}'s intention: {intent}
 
 Critique Request: 
-Is {last_user} want to view his/her own account report? []
-Is {last_user} want to view other user's account report? []
+Is {last_user} want to view his/her own account report or Is he/she mention the owner of the account? []
+Is {last_user} want to view other user's account report and explicitly mention their name? []
 Is {last_user} want to view external report about any companies in the world? []
 
-After ticking above checkboxes, system should followed by "Reason: " and then conclude the revision by "Conclusion: " + "Correct" or "Incorrect"
+System should output "Reasoning: " in 2-3 sentences, then output the above checklist "Checklist: " and tick them by [x] or [ ], and then conclude the revision by "Conclusion: " + "Correct" or "Incorrect"
 
 --- System's Analyzing ---
-Critique:
-Is {last_user} want to view his/her account report?"""
+Reasoning:"""
         logging.info(f"Model input: \n{model_input}")
         output = generate_general_call_chatgpt_api(
             inputs=model_input,
@@ -74,16 +73,26 @@ Is {last_user} want to view his/her account report?"""
         out = " ".join(output.split()).strip()
         conclusion = re.search(r"Conclusion: (.*)", out)
         tick1 = True
-        if out.startswith("[ ]") or out.startswith("[]"):
+        # if out.startswith("[ ]") or out.startswith("[]"):
+        if f"Is {last_user} want to view his/her own account report? Is he/she mention the owner of the account? []" in out \
+            or f"Is {last_user} want to view his/her own account report? Is he/she mention the owner of the account? [ ]" in out:
             tick1 = False
         tick2 = True
-        tick2_context = re.search(r"Is (.*) want to view other user's account report\? \[(.*)\]", out)
-        if tick2_context:
-            tick2 = False if tick2_context.group(2) == " " or tick2_context.group(2) == "" else True
+        # tick2_context = re.search(r"account report and explicitly mention their name\? \[(.*)\]", out)
+        # print(tick2_context)
+        if f"Is {last_user} want to view other user's account report and explicitly mention their name? []" in out \
+            or f"Is {last_user} want to view other user's account report and explicitly mention their name? [ ]" in out:
+            # print(f'group(0): {tick2_context.group(0)}'
+                    # f'group(1): {tick2_context.group(1)}')
+            # tick2 = False if tick2_context.group(0) == " " or tick2_context.group(0) == "" else True
+            tick2 = False
         tick3 = True
-        tick3_context = re.search(r"Is (.*) want to view external report about any companies in the world\? \[(.*)\]", out)
-        if tick3_context:
-            tick3 = False if tick3_context.group(2) == " " or tick3_context.group(2) == "" else True
+        # tick3_context = re.search(r"any companies in the world\? \[(.*)\]", out)
+        # print(tick3_context)
+        if f"Is {last_user} want to view external report about any companies in the world? []" in out \
+            or f"Is {last_user} want to view external report about any companies in the world? [ ]" in out:
+            # tick3 = False if tick3_context.group(0) == " " or tick3_context.group(0) == "" else True
+            tick3 = False
         logging.info(f"tick1: {tick1}, tick2: {tick2}, tick3: {tick3}")
         if tick1 and not tick2 and not tick3:
             logging.info(f"Ticked 1st checkbox, unticked 2nd and 3rd checkboxes, conclusion: Correct")
@@ -101,3 +110,6 @@ if __name__ == "__main__":
     ])
     logging.info(f"Output: {out}")
         
+    
+    # re.search(r"account report and explicitly mention their name\? \[(.*)\]$", 
+                            #   "want to view other user's account report and explicitly mention their name? []")
