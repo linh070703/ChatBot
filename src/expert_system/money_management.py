@@ -14,7 +14,7 @@ import logging
 THANKS = ['Ok mình hiểu rồi', 'Cảm ơn bạn nhiều', 'Cảm ơn bạn nhiều lắm']
 STAGE2_QUESTIONS = ['Vì sao mình nên dành từng đó cho các chi tiêu cần thiết', 'Vì sao mình nên dành từng đó cho tiết kiệm dài hạn', 'Vì sao mình nên dành từng đó cho giáo dục', 'Vì sao mình nên dành từng đó cho hưởng thụ', 'Vì sao mình nên dành từng đó cho tự do tài chính', 'Vì sao mình nên dành từng đó cho từ thiện']
 
-def is_money_management_question(message: str) -> bool:
+def is_money_management_question(messages: List[Dict[str, str]]) -> bool:
     """
     Lên kế hoạch tiết kiệm.
 
@@ -31,14 +31,18 @@ def is_money_management_question(message: str) -> bool:
     True
     """
 
-    return (
-        "kế hoạch tiết kiệm" in message 
+    return any([
+        "kế hoạch tiết kiệm" in message['content'] 
         or (
-            "kế hoạch" in message
-            and ("ngân sách" in message or "chi tiêu" in message)
+            "kế hoạch" in message['content']
+            and ("ngân sách" in message['content'] or "chi tiêu" in message['content'])
         )
-        or "ngân sách chi tiêu" in message
-    )
+        or "ngân sách chi tiêu" in message['content']
+        or "kế hoạch chi tiêu" in message['content']
+        or "kế hoạch quản lý tiền" in message['content']
+        or "tính toán kế hoạch tiết kiệm" in message['content']
+        or "money management plan" in message['content']
+    ] for message in messages)
 
 
 def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:

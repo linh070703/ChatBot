@@ -6,11 +6,12 @@ from utils.logger import logging, print
 
 # detector = LanguageDetectorBuilder.from_all_languages().with_preloaded_language_models().build()
 detector = LanguageDetectorBuilder.from_languages(
-    Language.ENGLISH, Language.FRENCH, Language.GERMAN, Language.SPANISH,
+    Language.ENGLISH,
+    # Language.FRENCH, Language.GERMAN, Language.SPANISH,
     Language.VIETNAMESE, Language.CHINESE, Language.JAPANESE, Language.KOREAN,
     Language.INDONESIAN, Language.THAI, Language.HINDI, Language.ARABIC,
-    Language.RUSSIAN, Language.PORTUGUESE, Language.ITALIAN, Language.TURKISH,
-    Language.DUTCH, Language.POLISH, Language.SWEDISH, Language.DANISH,
+    # Language.RUSSIAN, Language.PORTUGUESE, Language.ITALIAN, Language.TURKISH,
+    # Language.DUTCH, Language.POLISH, Language.SWEDISH, Language.DANISH,
 ).with_preloaded_language_models().build()
 
 @lru_cache(maxsize=256)
@@ -37,6 +38,7 @@ def translate(text: str, src="vi", dest="en") -> str:
         max_tokens=3072,
     )
     logging.info(f"Model output: \n{output}")
+    output = " ".join(output.split())
     return output
     
 
@@ -54,6 +56,8 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
     """
     question_lang = detector.detect_language_of(question).name
     answer_lang = detector.detect_language_of(answer).name
+
+    answer = translate_currency(answer, src=answer_lang)
     if question_lang == answer_lang:
         logging.info(f"Question and answer language are the same ({question_lang}). No need to translate.")
         return answer
@@ -62,6 +66,26 @@ def convert_answer_language_to_same_as_question(question: str, answer: str) -> s
         logging.info(f"Answer language: {answer_lang}")
         logging.info(f"Translating answer to {question_lang}...")
         return translate(answer, src=answer_lang, dest=question_lang)
+    
+def translate_currency(currency: str, src="ENGLISH") -> str:
+    """
+    Translate currency to English.
+
+    Args:
+        currency (str): currency to translate
+        
+    Returns:
+        str: translated currency
+    """
+    currency = " ".join(currency.split())
+    if src != "VIETNAMESE":
+        # replace all "nghìn", "triệu", "tỷ" with "thousand", "million", "billion"
+        currency = currency.replace("nghìn", "thousand").replace("triệu", "million").replace("tỷ", "billion")
+        # replace all "đồng" with "VND"
+        currency = currency.replace("đồng", "VND")
+    
+    return currency
+        
     
 def answer_I_dont_know_multilingual(messages: List[Dict[str, str]]):
     """

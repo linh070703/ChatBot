@@ -43,6 +43,25 @@ How can I help you today?
 Tôi có thể giúp gì cho bạn hôm nay?
 """
 
+def match_question(messages) -> Tuple[Union[str, None], List[str]]:
+    response = None
+    suggestions = None
+    # message: str = messages[-1]["content"]
+    
+    # message = convert_answer_language_to_same_as_question(question="Tiếng Việt", answer=message)
+    # messages
+    
+    if money_management.is_money_management_question(messages):
+        logging.info("Money management question detected")
+        return money_management.money_management_suggestion(messages)
+    elif economical.is_economical_question(messages):
+        logging.info("Economical question detected")
+        return economical.economical_suggestion(messages)
+    # elif loan.is_loan_question(message):
+    #     response, suggestions = loan.loan_suggestion(messages)
+
+    logging.info("No pre-defined question matched")
+    return response, suggestions
 
 def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
@@ -93,20 +112,9 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
             "Tôi muốn tạo nhóm chat với Hùng và Cường",
             "Tôi muốn được tư vấn tài chính"
         ]
+    
+    response, suggestions = match_question(messages)
 
-    response = None
-    message: str = messages[-1]["content"]
-    
-    message = convert_answer_language_to_same_as_question(question="Tiếng Việt", answer=message)
-    
-    if money_management.is_money_management_question(message):
-        logging.info("Money management question detected")
-        response, suggestions = money_management.money_management_suggestion(messages)
-    elif economical.is_economical_question(message):
-        logging.info("Economical question detected")
-        response, suggestions = economical.economical_suggestion(messages)
-    # elif loan.is_loan_question(message):
-    #     response, suggestions = loan.loan_suggestion(messages)
 
     if response is not None:
         return response, suggestions

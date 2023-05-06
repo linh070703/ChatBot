@@ -13,8 +13,9 @@ from expert_system.utils import spreadsheet
 import re
 import logging
 
-def is_economical_question(message: str) -> bool:
-    return "tiết kiệm" in message
+def is_economical_question(messages: List[Dict[str, str]]) -> bool:
+    # return "tiết kiệm" in message
+    return any(["tiết kiệm" in message['content'] for message in messages])
 
 def economical_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
     """
