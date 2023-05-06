@@ -31,18 +31,40 @@ def is_money_management_question(messages: List[Dict[str, str]]) -> bool:
     True
     """
 
-    return any([
-        "kế hoạch tiết kiệm" in message['content'] 
-        or (
-            "kế hoạch" in message['content']
-            and ("ngân sách" in message['content'] or "chi tiêu" in message['content'])
-        )
-        or "ngân sách chi tiêu" in message['content']
-        or "kế hoạch chi tiêu" in message['content']
-        or "kế hoạch quản lý tiền" in message['content']
-        or "tính toán kế hoạch tiết kiệm" in message['content']
-        or "money management plan" in message['content']
-    ] for message in messages)
+    # return any([
+    #     "kế hoạch tiết kiệm" in message['content'] 
+    #     or "kế hoạch ngân sách" in message['content']
+    #     or "kế hoạch chi tiêu" in message['content']
+    #     or "ngân sách chi tiêu" in message['content']
+    #     or "kế hoạch chi tiêu" in message['content']
+    #     or "kế hoạch quản lý tiền" in message['content']
+    #     or "tính toán kế hoạch tiết kiệm" in message['content']
+    #     or "money management plan" in message['content']
+    # ] for message in messages)
+    for message in messages:
+        if "kế hoạch tiết kiệm" in message['content']:
+            logging.info("Matched: kế hoạch tiết kiệm")
+            return True
+        elif "kế hoạch ngân sách" in message['content']:
+            logging.info("Matched: kế hoạch ngân sách")
+            return True
+        elif "kế hoạch chi tiêu" in message['content']:
+            logging.info("Matched: kế hoạch chi tiêu")
+            return True
+        elif "ngân sách chi tiêu" in message['content']:
+            logging.info("Matched: ngân sách chi tiêu")
+            return True
+        elif "kế hoạch quản lý tiền" in message['content']:
+            logging.info("Matched: kế hoạch quản lý tiền")
+            return True
+        elif "tính toán kế hoạch tiết kiệm" in message['content']:
+            logging.info("Matched: tính toán kế hoạch tiết kiệm")
+            return True
+        elif "money management plan" in message['content']:
+            logging.info("Matched: money management plan")
+            return True
+    return False
+
 
 
 def money_management_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
@@ -190,3 +212,7 @@ if __name__ == "__main__":
         # {"user": "Alex", "content": "Tạo sao lại để từ thiện nhỉ?"},
     ])
     print(f"Final output: {out}")
+
+    # logging.info(is_money_management_question([
+    #     {"user": "Alex", "content": "Tôi muốn xem báo cáo của tài khoản của Hùng và Mai."},
+    # ]))
