@@ -360,6 +360,15 @@ def chat():
                 },
                 'suggestions': []
             }
+    elif intention == 'VIEW_USER_ACCOUNT_REPORT':
+        res = {
+            'action': {
+                'command': 'VIEW_USER_ACCOUNT_REPORT',
+                'params': {
+                    'user': messages[-1]['user']
+                }
+            }
+        }
     else:
         raise Exception(f"Unknown intention: {intention}")
     
