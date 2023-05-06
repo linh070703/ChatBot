@@ -162,6 +162,9 @@ REASONING:"""
         category = " ".join(output.split())
         params["category"] = category
         logging.info(f"Categorize transaction: {category}")
+        if category not in ["Food", "Shopping", "Entertainment", "Utility", "Other"]:
+            logging.warning(f"Invalid category: {category}")
+            params["category"] = "Other"
         return params
 
     elif action == "CREATE_CHAT_GROUP":
