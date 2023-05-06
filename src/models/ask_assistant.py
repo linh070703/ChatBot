@@ -6,6 +6,7 @@ import re
 from typing import List, Literal, Dict, Union, Any, Tuple
 from utils.model_api import generate_general_call_chatgpt_api
 from utils.logger import setup_logging_display_only, print
+from models.translator import convert_answer_language_to_same_as_question
 import logging
 from expert_system import loan, money_management, economical
 
@@ -95,12 +96,17 @@ def ask_assistant(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
 
     response = None
     message: str = messages[-1]["content"]
+    
+    message = convert_answer_language_to_same_as_question(question="Tiếng Việt", answer=message)
+    
     if money_management.is_money_management_question(message):
+        logging.info("Money management question detected")
         response, suggestions = money_management.money_management_suggestion(messages)
     elif economical.is_economical_question(message):
+        logging.info("Economical question detected")
         response, suggestions = economical.economical_suggestion(messages)
-    elif loan.is_loan_question(message):
-        response, suggestions = loan.loan_suggestion(messages)
+    # elif loan.is_loan_question(message):
+    #     response, suggestions = loan.loan_suggestion(messages)
 
     if response is not None:
         return response, suggestions
@@ -130,7 +136,7 @@ def general_suggestion(messages: List[Dict[str, str]]) -> Tuple[str, List[str]]:
 
 if __name__ == "__main__":
     setup_logging_display_only()
-    response, suggestions = general_suggestion(messages=[
+    response, suggestions = ask_assistant(messages=[
         {"user": "Minh", "content": "I want to ask for financial advice"},
         {"user": "assistant", "content": "Sure, I can help you with that. What do you want to ask?"},
         {"user": "Minh", "content": "Help me create a monthly budget plan"},
